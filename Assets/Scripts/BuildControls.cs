@@ -1,12 +1,8 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UIElements;
-using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(UIDocument))]
 public class BuildControls : MonoBehaviour
@@ -37,7 +33,24 @@ public class BuildControls : MonoBehaviour
     }
 
     private void OnValidate() => StartCoroutine(RenderUI());
-
+    
+    private T CreateElement<T>(VisualElement parent = null, string[] classNames = null ) where T : VisualElement, new()
+    {
+        T element = new();
+        if(parent is null)
+            _document.rootVisualElement.Add(element);
+        else
+            parent.Add(element);
+        if (classNames is null) return element;
+        foreach (string className in classNames)
+            element.AddToClassList(className);
+        
+        return element;
+    }
+    
+    private VisualElement CreateElement(VisualElement parent = null, string[] classNames = null) =>
+        CreateElement<VisualElement>(parent, classNames);
+    
     private IEnumerator RenderUI()
     {
         yield return null;
@@ -51,34 +64,25 @@ public class BuildControls : MonoBehaviour
         root.pickingMode = PickingMode.Position; 
         root.RegisterCallback<MouseDownEvent>(HandleSceneClick);
 
-        var container = new VisualElement();
-        container.AddToClassList("container");
-        root.Add(container);
+        VisualElement container = CreateElement(classNames: new[]{"container"});
         container.RegisterCallback<MouseDownEvent>(PreventSceneClick);
 
-        var mainPanel = new VisualElement();
-        mainPanel.AddToClassList("main-panel");
-        container.Add(mainPanel);
+        VisualElement mainPanel = CreateElement(parent: container, classNames: new[]{"main-panel"});
 
-        var scrollView = new ScrollView();
-        scrollView.AddToClassList("scroll-view");
+        ScrollView scrollView = CreateElement<ScrollView>(parent: mainPanel, classNames: new[] { "scroll-view" });
         scrollView.verticalScrollerVisibility = ScrollerVisibility.Hidden;
-        mainPanel.Add(scrollView);
         
+        VisualElement scrollViewContent =
+            CreateElement(parent: scrollView, classNames: new[] { "scroll-view-content" });
 
-        var scrollViewContent = new VisualElement();
-        scrollViewContent.AddToClassList("scroll-view-content");
-        scrollView.Add(scrollViewContent);
 
         var allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(PlaceableObjData)).Cast<PlaceableObjData>()
             .ToArray();
 
         foreach (var objData in allPlaceableObjectData)
         {
-            var button = new VisualElement();
-            button.AddToClassList("building-data-button");
+            VisualElement button = CreateElement(parent: scrollViewContent, classNames: new[]{"building-data-button"});
             button.style.backgroundImage = objData.ManuPreviewImage;
-            scrollViewContent.Add(button);
             button.RegisterCallback<MouseDownEvent, PlaceableObjData>(HandleObjDataButtonClick, objData);
         }
         
