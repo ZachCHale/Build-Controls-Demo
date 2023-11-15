@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea6cd0b1159195342b263a92d85cd08e, type: 3}
-  m_Name: Test Object Data A
+  m_Name: Box
   m_EditorClassIdentifier: 
-  prefabReference: {fileID: 6518625360300223288, guid: e2ccb905c969eb547b68b3272bcc2195, type: 3}
-  label: 
-  description: It's just a standard sphere
+  prefabReference: {fileID: 2977147911789491551, guid: 340156906723a9949b98e11effc10f3d, type: 3}
+  label: Box
+  description: A box with sharp corners!
+  menuPreviewImage: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}

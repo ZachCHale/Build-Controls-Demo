@@ -11,4 +11,6 @@ public class PlaceableObjData : ScriptableObject
     public string Label => label;
     [SerializeField] private string description;
     public string Description => description;
+    [SerializeField] private Texture2D menuPreviewImage;
+    public Texture2D ManuPreviewImage => menuPreviewImage;
 }
