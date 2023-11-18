@@ -51,7 +51,7 @@ public class TileMap : MonoBehaviour
     private Vector3 _mapOriginWorld => transform.position;
     private Vector3 _mapEndWorld => transform.position + _tileSize * ((_mapXDir * _tileCountX) + (_mapYDir * _tileCountY));
     private Vector3 _mapOriginLocal => Vector3.zero;
-    private Vector3 _mapEndLocal => new Vector3(_tileSize * _tileCountX, 0, _tileSize * _tileCountY);
+    private Vector3 _mapEndLocal => new (_tileSize * _tileCountX, 0, _tileSize * _tileCountY);
 
     private Vector3 _mapNormal => transform.up;
     private Vector3 _mapXDir => transform.right;
@@ -62,7 +62,7 @@ public class TileMap : MonoBehaviour
         _mainCamera = Camera.main;
         foreach (int x in Enumerable.Range(0, _tileCountX))
             foreach (int y in Enumerable.Range(0, _tileCountY))
-                _tiles.Add(new(x,y), new Tile(this, new(x,y)));
+                _tiles.Add(new Vector2(x,y), new Tile(this, new(x,y)));
     }
     /// <summary>
     /// <para>For a given position in world space, returns the position relative to the map's position and orientation.</para>
@@ -77,7 +77,7 @@ public class TileMap : MonoBehaviour
         float localX = xProjection.magnitude * Math.Sign(Vector3.Dot(xProjection, _mapXDir));
         float localY = yProjection.magnitude * Math.Sign(Vector3.Dot(yProjection, _mapYDir));
         
-        return new(localX, 0, localY);
+        return new Vector3(localX, 0, localY);
     }
     /// <summary>
     /// <para>For a given position in world space, finds the index of the tile containing that point. </para>
