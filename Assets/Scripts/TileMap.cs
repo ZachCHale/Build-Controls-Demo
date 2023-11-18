@@ -25,20 +25,30 @@ public class TileMap : MonoBehaviour
             WorldPosition = mapCornerCenterOffsetPosition + new Vector3(tileMap._tileSize * MapIndex.x, 0, tileMap._tileSize * mapIndex.y);
         }
         /// <summary>
-        /// <para>For a given <c>PlaceableObjData</c>, dispose of any object instance in the tile and create a new
-        /// <c>PlaceableObjectInstance</c> at the center of the tile.</para>
+        /// <para>For a given <c>PlaceableObjData</c>, create a new <c>PlaceableObjectInstance</c> at the center of the tile.</para>
         /// </summary>
         /// <param name="objData"><c>PlaceableObjData</c> to create a <c>PlaceableObjectInstance</c> from.</param>
+        /// <returns><c>true</c> if the object was added to the tile. <c>false</c> if an object is already in the tile.</returns>
+        public bool PlaceNewObject(PlaceableObjData objData)
+        {
+            bool tileIsOccupied = _placedObject != null;
+            if (tileIsOccupied) return false;
+            _placedObject = new PlaceableObjInstance(objData, WorldPosition);
+            return true;
+        }
+        /// <summary>
+        /// Dispose of any object contained within the tile.
+        /// </summary>
         /// <param name="removedObjData">When this method returns, contains the <c>PlaceableObjData</c> of the <c>PlaceableObjectInstance</c>
         /// that was removed from the tile. If no tile was removed, remains null.</param>
-        /// <returns><c>true</c> if the tile was empty. <c>false</c> if an object was removed to add this one.</returns>
-        public bool PlaceNewObject(PlaceableObjData objData, out PlaceableObjData removedObjData)
+        /// <returns><c>true</c> if an object was removed from the tile. <c>false</c> if the tile is empty.</returns>
+        public bool RemoveObject(out PlaceableObjData removedObjData)
         {
-            bool tileWasEmpty = _placedObject == null;
+            bool tileWasOccupied = _placedObject != null;
             removedObjData  = _placedObject?.Data;
             _placedObject?.Dispose();
-            _placedObject = new PlaceableObjInstance(objData, WorldPosition);
-            return tileWasEmpty;
+            _placedObject = null;
+            return tileWasOccupied;
         }
     }
     
@@ -103,8 +113,8 @@ public class TileMap : MonoBehaviour
     /// For a given <c>PlaceableObjData</c>, Creates a <c>PlaceableObjInstance</c> and adds it to the tile under the mouse.
     /// </summary>
     /// <param name="objData"><c>PlaceableObjData</c> to create a <c>PlaceableObjInstance</c> from.</param>
-    /// <returns><c>true</c> if the object was placed successfully. <c>false</c> if the mouse is pointing out of the bounds,
-    /// in the opposite direction of the map, or parallel to the map. </returns>
+    /// <returns><c>true</c> if the object was placed successfully. <c>false</c> the tile was already occupied by an object,
+    /// or if the mouse is pointing out of the bounds, in the opposite direction of the map, or parallel to the map. </returns>
     public bool PlaceObjectAtMousePosition(PlaceableObjData objData)
     {
         bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
@@ -112,9 +122,29 @@ public class TileMap : MonoBehaviour
         
         if (!inBounds || !validPosition) return false;
         
-        bool objectWasRemoved = !_tiles[mapIndex].PlaceNewObject(objData, out PlaceableObjData removedObjData);
-        if(objectWasRemoved)Debug.Log($"Removed:{removedObjData.Label}");
-        return true;
+        bool objectWasPlaced = !_tiles[mapIndex].PlaceNewObject(objData);
+
+        return objectWasPlaced;
+    }
+    
+    /// <summary>
+    /// Attempts to remove an object from the tile under the mouse pointer.
+    /// </summary>
+    /// <param name="removedObjData">When this method returns, contains the <c>PlaceableObjData</c> of the object removed if there was an
+    /// object removed; otherwise, defaults to null.</param>
+    /// <returns><c>true</c> if an object was removed successfully. <c>false</c> if no object was removed.</returns>
+    public bool RemoveObjectAtMousePosition(out PlaceableObjData removedObjData)
+    {
+        bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
+        bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2 mapIndex);
+        if (!inBounds || !validPosition)
+        {
+            removedObjData = null;
+            return false;
+        }
+        
+        bool objectWasRemoved = !_tiles[mapIndex].RemoveObject(out removedObjData);
+        return objectWasRemoved;
     }
 }
 

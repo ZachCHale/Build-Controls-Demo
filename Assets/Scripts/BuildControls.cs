@@ -24,7 +24,10 @@ public class BuildControls : MonoBehaviour
 
     private void HandleSceneClick(MouseDownEvent evt)
     {
-        _map.PlaceObjectAtMousePosition(_selectedData);
+        if(evt.button == 0)
+            _map.PlaceObjectAtMousePosition(_selectedData);
+        else if (evt.button == 1)
+            _map.RemoveObjectAtMousePosition(out PlaceableObjData removedObjData);
     }
     private void PreventSceneClick(MouseDownEvent evt)
     {
