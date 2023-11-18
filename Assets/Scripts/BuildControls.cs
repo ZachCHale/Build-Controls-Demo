@@ -14,14 +14,17 @@ public class BuildControls : MonoBehaviour
 
     private UIDocument _document;
 
+    private TileMap _map;
+
     private void Awake()
     {
         StartCoroutine(RenderUI());
+        _map = FindObjectOfType<TileMap>();
     }
 
     private void HandleSceneClick(MouseDownEvent evt)
     {
-        GameObject.Instantiate(_selectedData.PrefabReference);
+        _map.PlaceObjectAtMousePosition(_selectedData);
     }
     private void PreventSceneClick(MouseDownEvent evt)
     {
@@ -31,8 +34,6 @@ public class BuildControls : MonoBehaviour
     {
         _selectedData = objData;
     }
-
-    private void OnValidate() => StartCoroutine(RenderUI());
     
     private T CreateElement<T>(VisualElement parent = null, string[] classNames = null ) where T : VisualElement, new()
     {
@@ -51,6 +52,8 @@ public class BuildControls : MonoBehaviour
     private VisualElement CreateElement(VisualElement parent = null, string[] classNames = null) =>
         CreateElement<VisualElement>(parent, classNames);
     
+    private void OnValidate() => StartCoroutine(RenderUI());
+    
     private IEnumerator RenderUI()
     {
         yield return null;
@@ -58,7 +61,7 @@ public class BuildControls : MonoBehaviour
         Assert.IsNotNull(_document.panelSettings);
         Assert.IsNotNull(_styleSheet);
 
-        var root = _document.rootVisualElement;
+        VisualElement root = _document.rootVisualElement;
         root.Clear();
         root.styleSheets.Add(_styleSheet);
         root.pickingMode = PickingMode.Position; 
@@ -74,12 +77,11 @@ public class BuildControls : MonoBehaviour
         
         VisualElement scrollViewContent =
             CreateElement(parent: scrollView, classNames: new[] { "scroll-view-content" });
-
-
-        var allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(PlaceableObjData)).Cast<PlaceableObjData>()
+        
+        PlaceableObjData[] allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(PlaceableObjData)).Cast<PlaceableObjData>()
             .ToArray();
 
-        foreach (var objData in allPlaceableObjectData)
+        foreach (PlaceableObjData objData in allPlaceableObjectData)
         {
             VisualElement button = CreateElement(parent: scrollViewContent, classNames: new[]{"building-data-button"});
             button.style.backgroundImage = objData.ManuPreviewImage;
