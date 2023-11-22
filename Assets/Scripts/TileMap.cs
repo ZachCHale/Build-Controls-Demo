@@ -8,13 +8,14 @@ public class TileMap : MonoBehaviour
     private class Tile
     {
         private TileMap _tileMap;
-        public readonly Vector3 WorldPosition;
+        public Vector3 WorldPosition => _tileMap.transform.TransformPoint(LocalPosition);
+        public readonly Vector3 LocalPosition;
         public readonly Vector2 MapIndex;
         private TileObjectData _objectData;
         private GameObject _objectInstance;
         private bool _tileIsOccupied;
         /// <summary>
-        /// <para>Creates a tile and initializes its world position based on the given <c>TileMap</c> and tile index.</para>
+        /// <para>Creates a tile and calculates its local position based on the given <c>TileMap</c> and tile index.</para>
         /// </summary>
         /// <param name="tileMap">The <c>TileMap</c> containing this tile.</param>
         /// <param name="mapIndex">The index/key for this tile in the <c>TileMap</c></param>
@@ -23,8 +24,8 @@ public class TileMap : MonoBehaviour
             _tileMap = tileMap;
             MapIndex = mapIndex;
             float tileCenterOffset = _tileMap._tileSize / 2;
-            Vector3 mapCornerCenterOffsetPosition = _tileMap._mapOriginWorld + new Vector3(tileCenterOffset, 0, tileCenterOffset);
-            WorldPosition = mapCornerCenterOffsetPosition + new Vector3(tileMap._tileSize * MapIndex.x, 0, tileMap._tileSize * mapIndex.y);
+            LocalPosition = new Vector3(tileCenterOffset, 0, tileCenterOffset) +
+                            new Vector3(tileMap._tileSize * MapIndex.x, 0, tileMap._tileSize * mapIndex.y);
             _tileIsOccupied = false;
         }
         /// <summary>
@@ -34,9 +35,12 @@ public class TileMap : MonoBehaviour
         /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile.</returns>
         public bool PlaceNewObject(TileObjectData objData)
         {
+            //Debug.Log("right: " + _tileMap._mapXDir);
             if (_tileIsOccupied) return false;
             _objectData = objData;
-            _objectInstance = Instantiate(objData.PrefabReference, WorldPosition, _tileMap.transform.rotation);
+            _objectInstance = Instantiate(objData.PrefabReference, _tileMap.transform);
+            _objectInstance.transform.localPosition = LocalPosition;
+            _objectInstance.transform.localRotation = Quaternion.identity;
             _tileIsOccupied = true;
             return true;
         }
