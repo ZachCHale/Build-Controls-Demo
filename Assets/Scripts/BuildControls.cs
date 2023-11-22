@@ -9,6 +9,7 @@ public class BuildControls : MonoBehaviour
 {
     [SerializeField] private PlaceableObjData _selectedData;
     [SerializeField] private StyleSheet _styleSheet;
+    [SerializeField] private Texture2D _deleteButtonBackgroundImage;
 
     private VisualElement _blockingUI;
 
@@ -16,26 +17,34 @@ public class BuildControls : MonoBehaviour
 
     private TileMap _map;
 
+    private bool isInDeleteMode = false;
+
     private void Awake()
     {
         StartCoroutine(RenderUI());
         _map = FindObjectOfType<TileMap>();
     }
 
+    private void PreventSceneClick(MouseDownEvent evt) => evt.StopPropagation();
     private void HandleSceneClick(MouseDownEvent evt)
     {
-        if(evt.button == 0)
-            _map.PlaceObjectAtMousePosition(_selectedData);
-        else if (evt.button == 1)
+        if (evt.button != 0) return;
+        if (isInDeleteMode)
             _map.RemoveObjectAtMousePosition(out PlaceableObjData removedObjData);
+        else if(_selectedData != null)
+            _map.PlaceObjectAtMousePosition(_selectedData);
     }
-    private void PreventSceneClick(MouseDownEvent evt)
-    {
-        evt.StopPropagation();
-    }
+    
     private void HandleObjDataButtonClick(MouseDownEvent evt, PlaceableObjData objData)
     {
+        isInDeleteMode = false;
         _selectedData = objData;
+    }
+
+    private void HandleDeleteButtonClick(MouseDownEvent evt)
+    {
+        isInDeleteMode = true;
+        _selectedData = null;
     }
     
     private T CreateElement<T>(VisualElement parent = null, string[] classNames = null ) where T : VisualElement, new()
@@ -61,8 +70,10 @@ public class BuildControls : MonoBehaviour
     {
         yield return null;
         _document = GetComponent<UIDocument>();
-        Assert.IsNotNull(_document.panelSettings);
-        Assert.IsNotNull(_styleSheet);
+        Assert.IsNotNull(_document.panelSettings, "Missing Panel Settings for BuildControls.");
+        Assert.IsNotNull(_styleSheet, "Missing style sheet for BuildControls.");
+        Assert.IsNotNull(_deleteButtonBackgroundImage, "Missing delete button background image for BuildControls.");
+
 
         VisualElement root = _document.rootVisualElement;
         root.Clear();
@@ -84,10 +95,15 @@ public class BuildControls : MonoBehaviour
         PlaceableObjData[] allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(PlaceableObjData)).Cast<PlaceableObjData>()
             .ToArray();
 
+        VisualElement deleteButton =
+            CreateElement(parent: scrollViewContent, classNames: new[] { "delete-button" });
+        deleteButton.style.backgroundImage = _deleteButtonBackgroundImage;
+        deleteButton.RegisterCallback<MouseDownEvent>(HandleDeleteButtonClick);
+        
         foreach (PlaceableObjData objData in allPlaceableObjectData)
         {
             VisualElement button = CreateElement(parent: scrollViewContent, classNames: new[]{"building-data-button"});
-            button.style.backgroundImage = objData.ManuPreviewImage;
+            button.style.backgroundImage = objData.MenuPreviewImage;
             button.RegisterCallback<MouseDownEvent, PlaceableObjData>(HandleObjDataButtonClick, objData);
         }
         
