@@ -2,12 +2,12 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
 public class BuildControls : MonoBehaviour
 {
-    [SerializeField] private PlaceableObjData _selectedData;
     [SerializeField] private StyleSheet _styleSheet;
     [SerializeField] private Texture2D _deleteButtonBackgroundImage;
 
@@ -17,6 +17,7 @@ public class BuildControls : MonoBehaviour
 
     private TileMap _map;
 
+    private TileObjectData _selectedObjData;
     private bool isInDeleteMode = false;
 
     private void Awake()
@@ -30,21 +31,21 @@ public class BuildControls : MonoBehaviour
     {
         if (evt.button != 0) return;
         if (isInDeleteMode)
-            _map.RemoveObjectAtMousePosition(out PlaceableObjData removedObjData);
-        else if(_selectedData != null)
-            _map.PlaceObjectAtMousePosition(_selectedData);
+            _map.RemoveObjectAtMousePosition(out TileObjectData removedObjData);
+        else if(_selectedObjData != null)
+            _map.PlaceObjectAtMousePosition(_selectedObjData);
     }
     
-    private void HandleObjDataButtonClick(MouseDownEvent evt, PlaceableObjData objData)
+    private void HandleObjDataButtonClick(MouseDownEvent evt, TileObjectData objData)
     {
         isInDeleteMode = false;
-        _selectedData = objData;
+        _selectedObjData = objData;
     }
 
     private void HandleDeleteButtonClick(MouseDownEvent evt)
     {
         isInDeleteMode = true;
-        _selectedData = null;
+        _selectedObjData = null;
     }
     
     private T CreateElement<T>(VisualElement parent = null, string[] classNames = null ) where T : VisualElement, new()
@@ -92,7 +93,7 @@ public class BuildControls : MonoBehaviour
         VisualElement scrollViewContent =
             CreateElement(parent: scrollView, classNames: new[] { "scroll-view-content" });
         
-        PlaceableObjData[] allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(PlaceableObjData)).Cast<PlaceableObjData>()
+        TileObjectData[] allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(TileObjectData)).Cast<TileObjectData>()
             .ToArray();
 
         VisualElement deleteButton =
@@ -100,11 +101,11 @@ public class BuildControls : MonoBehaviour
         deleteButton.style.backgroundImage = _deleteButtonBackgroundImage;
         deleteButton.RegisterCallback<MouseDownEvent>(HandleDeleteButtonClick);
         
-        foreach (PlaceableObjData objData in allPlaceableObjectData)
+        foreach (TileObjectData objData in allPlaceableObjectData)
         {
             VisualElement button = CreateElement(parent: scrollViewContent, classNames: new[]{"building-data-button"});
             button.style.backgroundImage = objData.MenuPreviewImage;
-            button.RegisterCallback<MouseDownEvent, PlaceableObjData>(HandleObjDataButtonClick, objData);
+            button.RegisterCallback<MouseDownEvent, TileObjectData>(HandleObjDataButtonClick, objData);
         }
         
     }

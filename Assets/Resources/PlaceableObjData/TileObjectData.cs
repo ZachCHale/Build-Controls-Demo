@@ -1,12 +1,13 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
-[CreateAssetMenu(menuName = "Demo/Placeable Object Data")]
-public class PlaceableObjData : ScriptableObject
+[CreateAssetMenu(menuName = "Demo/Tile Object Data")]
+public class TileObjectData : ScriptableObject
 {
     [SerializeField] private GameObject prefabReference;
     public GameObject PrefabReference => prefabReference;
-    [SerializeField] private string label;
-    public string Label => label;
+    [SerializeField] private string title;
+    public string Title => title;
     [SerializeField] private string description;
     public string Description => description;
     [SerializeField] private Texture2D menuPreviewImage;
