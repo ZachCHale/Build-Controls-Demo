@@ -10,7 +10,9 @@ public class TileMap : MonoBehaviour
         private TileMap _tileMap;
         public readonly Vector3 WorldPosition;
         public readonly Vector2 MapIndex;
-        private PlaceableObjInstance _placedObject;
+        private PlaceableObjData _objectData;
+        private GameObject _objectInstance;
+        private bool _tileIsOccupied;
         /// <summary>
         /// <para>Creates a tile and initializes its world position based on the given <c>TileMap</c> and tile index.</para>
         /// </summary>
@@ -23,32 +25,36 @@ public class TileMap : MonoBehaviour
             float tileCenterOffset = _tileMap._tileSize / 2;
             Vector3 mapCornerCenterOffsetPosition = _tileMap._mapOriginWorld + new Vector3(tileCenterOffset, 0, tileCenterOffset);
             WorldPosition = mapCornerCenterOffsetPosition + new Vector3(tileMap._tileSize * MapIndex.x, 0, tileMap._tileSize * mapIndex.y);
+            _tileIsOccupied = false;
         }
         /// <summary>
-        /// <para>For a given <c>PlaceableObjData</c>, create a new <c>PlaceableObjectInstance</c> at the center of the tile.</para>
+        /// <para>For a given <c>PlaceableObjData</c>, create a new GameObject at the center of the tile.</para>
         /// </summary>
-        /// <param name="objData"><c>PlaceableObjData</c> to create a <c>PlaceableObjectInstance</c> from.</param>
-        /// <returns><c>true</c> if the object was added to the tile. <c>false</c> if an object is already in the tile.</returns>
+        /// <param name="objData"><c>PlaceableObjData</c> to create a GameObject from.</param>
+        /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile.</returns>
         public bool PlaceNewObject(PlaceableObjData objData)
         {
-            bool tileIsOccupied = _placedObject != null;
-            if (tileIsOccupied) return false;
-            _placedObject = new PlaceableObjInstance(objData, WorldPosition);
+            if (_tileIsOccupied) return false;
+            _objectData = objData;
+            _objectInstance = Instantiate(objData.PrefabReference, WorldPosition, _tileMap.transform.rotation);
+            _tileIsOccupied = true;
             return true;
         }
         /// <summary>
-        /// Dispose of any object contained within the tile.
+        /// Dispose of any GameObject contained within the tile.
         /// </summary>
-        /// <param name="removedObjData">When this method returns, contains the <c>PlaceableObjData</c> of the <c>PlaceableObjectInstance</c>
+        /// <param name="removedObjData">When this method returns, contains the <c>PlaceableObjData</c> of the GameObject
         /// that was removed from the tile. If no tile was removed, remains null.</param>
-        /// <returns><c>true</c> if an object was removed from the tile. <c>false</c> if the tile is empty.</returns>
+        /// <returns><c>true</c> if a GameObject was removed from the tile. <c>false</c> if the tile is already empty.</returns>
         public bool RemoveObject(out PlaceableObjData removedObjData)
         {
-            bool tileWasOccupied = _placedObject != null;
-            removedObjData  = _placedObject?.Data;
-            _placedObject?.Dispose();
-            _placedObject = null;
-            return tileWasOccupied;
+            removedObjData  = _tileIsOccupied ? _objectData : null;
+            if (!_tileIsOccupied) return false;
+            Destroy(_objectInstance);
+            _objectData = null;
+            _objectInstance = null;
+            _tileIsOccupied = false;
+            return true;
         }
     }
     
