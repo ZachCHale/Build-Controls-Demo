@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Box
   m_EditorClassIdentifier: 
   prefabReference: {fileID: 2977147911789491551, guid: 340156906723a9949b98e11effc10f3d, type: 3}
-  label: Box
+  title: Box
   description: A box with sharp corners!
   menuPreviewImage: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}

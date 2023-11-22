@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea6cd0b1159195342b263a92d85cd08e, type: 3}
-  m_Name: Ball
+  m_Name: House
   m_EditorClassIdentifier: 
-  prefabReference: {fileID: 6518625360300223288, guid: e2ccb905c969eb547b68b3272bcc2195, type: 3}
-  title: Ball
-  description: Just a funny old ball!
-  menuPreviewImage: {fileID: 10914, guid: 0000000000000000f000000000000000, type: 0}
+  prefabReference: {fileID: 600169065284684858, guid: ef5566c1b2e39f14194c9b9b53270183, type: 3}
+  title: House
+  description: Comfy House
+  menuPreviewImage: {fileID: 10309, guid: 0000000000000000f000000000000000, type: 0}
