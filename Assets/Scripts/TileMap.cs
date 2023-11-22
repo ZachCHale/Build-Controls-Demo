@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using CardinalDirections;
 
 public class TileMap : MonoBehaviour
 {
@@ -37,7 +38,7 @@ public class TileMap : MonoBehaviour
         /// <param name="objData"><c>TileObjectData</c> to create a GameObject from.</param>
         /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile,
         /// there is a GameObject in one of the other tiles covered by the object, or the object extends out of bounds.</returns>
-        public bool PlaceNewObject(TileObjectData objData, TileObjectFacingDirection objectFacingDirection)
+        public bool PlaceNewObject(TileObjectData objData, CardinalDirection objectFacingDirection)
         {
             bool objectPlacementIsInBounds = true;
             bool allCoveredTilesAreEmpty = true;
@@ -156,7 +157,7 @@ public class TileMap : MonoBehaviour
     /// <param name="objData"><c>TileObjectData</c> to add to a tile.</param>
     /// <returns><c>true</c> if the new object was placed successfully. <c>false</c> the tile was already occupied by an object,
     /// or if the mouse is pointing out of the bounds, in the opposite direction of the map, or parallel to the map. </returns>
-    public bool PlaceObjectAtMousePosition(TileObjectData objData, TileObjectFacingDirection objectFacingDirection)
+    public bool PlaceObjectAtMousePosition(TileObjectData objData, CardinalDirection objectFacingDirection)
     {
         bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
         bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
@@ -218,20 +219,20 @@ public class TileMap : MonoBehaviour
     private List<Vector2Int> TransformVectorsWest(List<Vector2Int> vectorsToTransform) =>
         RotateVectors(vectorsToTransform, 270);
 
-    private List<Vector2Int> GetVectorsTransformedForFacingDirection(List<Vector2Int> vectorsToTransform, TileObjectFacingDirection facingDirection)
+    private List<Vector2Int> GetVectorsTransformedForFacingDirection(List<Vector2Int> vectorsToTransform, CardinalDirection facingDirection)
     {
         switch (facingDirection)
         {
-            case TileObjectFacingDirection.North:
+            case CardinalDirection.North:
                 return TransformVectorsNorth(vectorsToTransform);
                 break;
-            case TileObjectFacingDirection.East:
+            case CardinalDirection.East:
                 return TransformVectorsEast(vectorsToTransform);
                 break;
-            case TileObjectFacingDirection.South:
+            case CardinalDirection.South:
                 return TransformVectorsSouth(vectorsToTransform);
                 break;
-            case TileObjectFacingDirection.West:
+            case CardinalDirection.West:
                 return TransformVectorsWest(vectorsToTransform);
                 break;
         }
@@ -239,20 +240,20 @@ public class TileMap : MonoBehaviour
         return vectorsToTransform;
     }
 
-    private Quaternion GetRotationForFacingDirection(TileObjectFacingDirection facingDirection)
+    private Quaternion GetRotationForFacingDirection(CardinalDirection facingDirection)
     {
         switch (facingDirection)
         {
-            case TileObjectFacingDirection.North:
+            case CardinalDirection.North:
                 return NorthRotation;
                 break;
-            case TileObjectFacingDirection.East:
+            case CardinalDirection.East:
                 return EastRotation;
                 break;
-            case TileObjectFacingDirection.South:
+            case CardinalDirection.South:
                 return SouthRotation;
                 break;
-            case TileObjectFacingDirection.West:
+            case CardinalDirection.West:
                 return WestRotation;
                 break;
         }
@@ -264,11 +265,5 @@ public class TileMap : MonoBehaviour
     private Quaternion SouthRotation => Quaternion.AngleAxis(180, Vector3.up);
     private Quaternion WestRotation => Quaternion.AngleAxis(270, Vector3.up);
     
-    public enum TileObjectFacingDirection
-    {
-        North, East, South, West,
-    }
-
-
 }
 

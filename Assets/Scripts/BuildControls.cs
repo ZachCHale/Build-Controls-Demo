@@ -2,8 +2,8 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 using UnityEngine.UIElements;
+using CardinalDirections;
 
 [RequireComponent(typeof(UIDocument))]
 public class BuildControls : MonoBehaviour
@@ -19,7 +19,7 @@ public class BuildControls : MonoBehaviour
 
     private TileObjectData _selectedObjData;
 
-    private TileMap.TileObjectFacingDirection _currentFacingDirection = TileMap.TileObjectFacingDirection.North;
+    private CardinalDirection _currentFacingDirection = CardinalDirection.North;
     private bool isInDeleteMode = false;
 
     private void Awake()
@@ -41,13 +41,9 @@ public class BuildControls : MonoBehaviour
     private void HandleSceneKeyPress(KeyDownEvent evt)
     {
         if (evt.keyCode == KeyCode.E)
-            _currentFacingDirection++;
+            _currentFacingDirection = _currentFacingDirection.Rotate();
         else if (evt.keyCode == KeyCode.Q)
-            _currentFacingDirection--;
-        if (_currentFacingDirection < TileMap.TileObjectFacingDirection.North)
-            _currentFacingDirection = TileMap.TileObjectFacingDirection.West;
-        else if (_currentFacingDirection > TileMap.TileObjectFacingDirection.West)
-            _currentFacingDirection = TileMap.TileObjectFacingDirection.North;
+            _currentFacingDirection = _currentFacingDirection.Rotate(counterClockwise:true);
     }
     
     private void HandleObjDataButtonClick(MouseDownEvent evt, TileObjectData objData)
