@@ -13,7 +13,7 @@ public class TileObjectData : ScriptableObject
     [SerializeField] private Texture2D menuPreviewImage;
     public Texture2D MenuPreviewImage => menuPreviewImage;
 
-    [SerializeField] private List<Vector2> occupiedSpaces = new List<Vector2>(){Vector2.zero};
-    public List<Vector2> OccupiedSpaces => occupiedSpaces;
+    [SerializeField] private List<Vector2Int> occupiedSpaces = new List<Vector2Int>(){Vector2Int.zero};
+    public List<Vector2Int> OccupiedSpaces => occupiedSpaces;
 
 }

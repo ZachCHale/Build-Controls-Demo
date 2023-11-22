@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea6cd0b1159195342b263a92d85cd08e, type: 3}
   m_Name: Long House
   m_EditorClassIdentifier: 
-  prefabReference: {fileID: 0}
-  title: 
-  description: 
-  menuPreviewImage: {fileID: 0}
+  prefabReference: {fileID: 600169065284684858, guid: ff3f58043507ecf4d871152bed15c2cd, type: 3}
+  title: Long House
+  description: It's a pretty long house.
+  menuPreviewImage: {fileID: 4456449167576933126, guid: 3e1967948bf2aee4f8337d311f8c0b84, type: 3}
   occupiedSpaces:
   - {x: 0, y: 0}
+  - {x: 0, y: 1}

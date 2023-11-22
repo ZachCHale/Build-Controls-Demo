@@ -10,7 +10,7 @@ public class TileMap : MonoBehaviour
         private TileMap _tileMap;
         public Vector3 WorldPosition => _tileMap.transform.TransformPoint(LocalPosition);
         public readonly Vector3 LocalPosition;
-        public readonly Vector2 TileIndex;
+        public readonly Vector2Int TileIndex;
         private TileObjectData _objectData;
         private GameObject _objectInstance;
         private bool _tileIsOccupied;
@@ -20,7 +20,7 @@ public class TileMap : MonoBehaviour
         /// </summary>
         /// <param name="tileMap">The <c>TileMap</c> containing this tile.</param>
         /// <param name="tileIndex">The index/key for this tile in the <c>TileMap</c></param>
-        public Tile(TileMap tileMap, Vector2 tileIndex)
+        public Tile(TileMap tileMap, Vector2Int tileIndex)
         {
             _tileMap = tileMap;
             TileIndex = tileIndex;
@@ -37,15 +37,15 @@ public class TileMap : MonoBehaviour
         /// <param name="objData"><c>TileObjectData</c> to create a GameObject from.</param>
         /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile,
         /// there is a GameObject in one of the other tiles covered by the object, or the object extends out of bounds.</returns>
-        public bool PlaceNewObject(TileObjectData objData)
+        public bool PlaceNewObject(TileObjectData objData, TileObjectFacingDirection objectFacingDirection)
         {
             bool objectPlacementIsInBounds = true;
             bool allCoveredTilesAreEmpty = true;
             List<Tile> tilesCoveredByObject = new();
-            foreach (Vector2 tileToOccupy in objData.OccupiedSpaces)
+            List<Vector2Int> spacesToOccupy = _tileMap.GetVectorsTransformedForFacingDirection(objData.OccupiedSpaces, objectFacingDirection);
+            foreach (Vector2Int tileToOccupy in spacesToOccupy)
             {
-                Vector2 relativeTileIndex = tileToOccupy + TileIndex;
-                Debug.Log(relativeTileIndex);
+                Vector2Int relativeTileIndex = tileToOccupy + TileIndex;
                 if (_tileMap.IsIndexInBounds(relativeTileIndex))
                     tilesCoveredByObject.Add(_tileMap._tiles[relativeTileIndex]);
                 
@@ -60,8 +60,8 @@ public class TileMap : MonoBehaviour
             
 
             GameObject newObjectInstance = Instantiate(objData.PrefabReference, _tileMap.transform);
+            newObjectInstance.transform.localRotation = Quaternion.identity * _tileMap.GetRotationForFacingDirection(objectFacingDirection);
             newObjectInstance.transform.localPosition = LocalPosition;
-            newObjectInstance.transform.localRotation = Quaternion.identity;
 
             foreach (Tile coveredTile in tilesCoveredByObject)
             {
@@ -101,7 +101,7 @@ public class TileMap : MonoBehaviour
     private readonly float _tileSize = 1f;
     private Camera _mainCamera;
     
-    private readonly Dictionary<Vector2, Tile>_tiles = new ();
+    private readonly Dictionary<Vector2Int, Tile>_tiles = new ();
     private Vector3 _mapOriginWorld => transform.position;
     private Vector3 _mapEndWorld => transform.position + _tileSize * ((_mapXDir * _tileCountX) + (_mapYDir * _tileCountY));
     private Vector3 _mapOriginLocal => Vector3.zero;
@@ -116,7 +116,7 @@ public class TileMap : MonoBehaviour
         _mainCamera = Camera.main;
         foreach (int x in Enumerable.Range(0, _tileCountX))
             foreach (int y in Enumerable.Range(0, _tileCountY))
-                _tiles.Add(new Vector2(x,y), new Tile(this, new(x,y)));
+                _tiles.Add(new Vector2Int(x,y), new Tile(this, new(x,y)));
     }
     /// <summary>
     /// <para>For a given position in world space, returns the position relative to the map's position and orientation.</para>
@@ -140,7 +140,7 @@ public class TileMap : MonoBehaviour
     /// <param name="mapIndex">When this method returns, contains the index for the tile containing the point if the point
     /// is within the bounds of the map; otherwise, contains the index of the closest edge tile.</param>
     /// <returns><c>true</c> if the position is within the bounds of the map. <c>false</c> if the position is out of bounds.</returns>
-    public bool WorldSpaceToMapTileIndex(Vector3 worldPos, out Vector2 mapIndex)
+    public bool WorldSpaceToMapTileIndex(Vector3 worldPos, out Vector2Int mapIndex)
     {
         Vector3 localPos = WorldSpaceToLocalMapSpace(worldPos);
         bool withinBounds = IsLocalPositionInBounds(localPos);
@@ -156,14 +156,14 @@ public class TileMap : MonoBehaviour
     /// <param name="objData"><c>TileObjectData</c> to add to a tile.</param>
     /// <returns><c>true</c> if the new object was placed successfully. <c>false</c> the tile was already occupied by an object,
     /// or if the mouse is pointing out of the bounds, in the opposite direction of the map, or parallel to the map. </returns>
-    public bool PlaceObjectAtMousePosition(TileObjectData objData)
+    public bool PlaceObjectAtMousePosition(TileObjectData objData, TileObjectFacingDirection objectFacingDirection)
     {
         bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
-        bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2 mapIndex);
+        bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
         
         if (!inBounds || !validPosition) return false;
         
-        bool objectWasPlaced = !_tiles[mapIndex].PlaceNewObject(objData);
+        bool objectWasPlaced = !_tiles[mapIndex].PlaceNewObject(objData, objectFacingDirection);
 
         return objectWasPlaced;
     }
@@ -177,7 +177,7 @@ public class TileMap : MonoBehaviour
     public bool RemoveObjectAtMousePosition(out TileObjectData removedObjData)
     {
         bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
-        bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2 mapIndex);
+        bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
         if (!inBounds || !validPosition)
         {
             removedObjData = null;
@@ -188,10 +188,87 @@ public class TileMap : MonoBehaviour
         return objectWasRemoved;
     }
 
-    private bool IsIndexInBounds(Vector2 tileIndex) => tileIndex.x >= 0 && tileIndex.x < _tileCountX && tileIndex.y >= 0 && tileIndex.y < _tileCountY;
+    private bool IsIndexInBounds(Vector2Int tileIndex) => tileIndex.x >= 0 && tileIndex.x < _tileCountX && tileIndex.y >= 0 && tileIndex.y < _tileCountY;
     private bool IsLocalPositionInBounds(Vector3 localPosition) => localPosition.x >= _mapOriginLocal.x && 
                                                                    localPosition.x <= _mapEndLocal.x && 
                                                                    localPosition.z >= _mapOriginLocal.z &&
                                                                    localPosition.z <=_mapEndLocal.z;
+
+    private Vector2Int RotateVector2ByRadians(Vector2Int vector, float radians)
+    {
+        return new Vector2Int(Mathf.RoundToInt(vector.x * Mathf.Cos(radians) + vector.y * Mathf.Sin(radians)),
+            Mathf.RoundToInt(-vector.x * Mathf.Sin(radians) + vector.y * Mathf.Cos(radians)));
+    }
+    private Vector2Int RotateVector2ByDegrees(Vector2Int vector, float degrees) => RotateVector2ByRadians(vector, Mathf.Deg2Rad * degrees);
+
+    private List<Vector2Int> RotateVectors(List<Vector2Int> vectorsToRotate, float degrees)
+    {
+        List<Vector2Int> rotatedVectors = new();
+        foreach (Vector2Int vector in vectorsToRotate)
+            rotatedVectors.Add(RotateVector2ByDegrees(vector, degrees));
+        return rotatedVectors;
+    }
+
+    private List<Vector2Int> TransformVectorsNorth(List<Vector2Int> vectorsToTransform) =>
+        RotateVectors(vectorsToTransform, 0);
+    private List<Vector2Int> TransformVectorsEast(List<Vector2Int> vectorsToTransform) =>
+        RotateVectors(vectorsToTransform, 90);
+    private List<Vector2Int> TransformVectorsSouth(List<Vector2Int> vectorsToTransform) =>
+        RotateVectors(vectorsToTransform, 180);
+    private List<Vector2Int> TransformVectorsWest(List<Vector2Int> vectorsToTransform) =>
+        RotateVectors(vectorsToTransform, 270);
+
+    private List<Vector2Int> GetVectorsTransformedForFacingDirection(List<Vector2Int> vectorsToTransform, TileObjectFacingDirection facingDirection)
+    {
+        switch (facingDirection)
+        {
+            case TileObjectFacingDirection.North:
+                return TransformVectorsNorth(vectorsToTransform);
+                break;
+            case TileObjectFacingDirection.East:
+                return TransformVectorsEast(vectorsToTransform);
+                break;
+            case TileObjectFacingDirection.South:
+                return TransformVectorsSouth(vectorsToTransform);
+                break;
+            case TileObjectFacingDirection.West:
+                return TransformVectorsWest(vectorsToTransform);
+                break;
+        }
+
+        return vectorsToTransform;
+    }
+
+    private Quaternion GetRotationForFacingDirection(TileObjectFacingDirection facingDirection)
+    {
+        switch (facingDirection)
+        {
+            case TileObjectFacingDirection.North:
+                return NorthRotation;
+                break;
+            case TileObjectFacingDirection.East:
+                return EastRotation;
+                break;
+            case TileObjectFacingDirection.South:
+                return SouthRotation;
+                break;
+            case TileObjectFacingDirection.West:
+                return WestRotation;
+                break;
+        }
+
+        return Quaternion.identity;
+    }
+    private Quaternion NorthRotation => Quaternion.identity;
+    private Quaternion EastRotation => Quaternion.AngleAxis(90, Vector3.up);
+    private Quaternion SouthRotation => Quaternion.AngleAxis(180, Vector3.up);
+    private Quaternion WestRotation => Quaternion.AngleAxis(270, Vector3.up);
+    
+    public enum TileObjectFacingDirection
+    {
+        North, East, South, West,
+    }
+
+
 }
 

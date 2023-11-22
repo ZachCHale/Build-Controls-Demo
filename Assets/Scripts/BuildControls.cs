@@ -18,6 +18,8 @@ public class BuildControls : MonoBehaviour
     private TileMap _map;
 
     private TileObjectData _selectedObjData;
+
+    private TileMap.TileObjectFacingDirection _currentFacingDirection = TileMap.TileObjectFacingDirection.North;
     private bool isInDeleteMode = false;
 
     private void Awake()
@@ -33,7 +35,19 @@ public class BuildControls : MonoBehaviour
         if (isInDeleteMode)
             _map.RemoveObjectAtMousePosition(out TileObjectData removedObjData);
         else if(_selectedObjData != null)
-            _map.PlaceObjectAtMousePosition(_selectedObjData);
+            _map.PlaceObjectAtMousePosition(_selectedObjData, _currentFacingDirection);
+    }
+
+    private void HandleSceneKeyPress(KeyDownEvent evt)
+    {
+        if (evt.keyCode == KeyCode.E)
+            _currentFacingDirection++;
+        else if (evt.keyCode == KeyCode.Q)
+            _currentFacingDirection--;
+        if (_currentFacingDirection < TileMap.TileObjectFacingDirection.North)
+            _currentFacingDirection = TileMap.TileObjectFacingDirection.West;
+        else if (_currentFacingDirection > TileMap.TileObjectFacingDirection.West)
+            _currentFacingDirection = TileMap.TileObjectFacingDirection.North;
     }
     
     private void HandleObjDataButtonClick(MouseDownEvent evt, TileObjectData objData)
@@ -79,8 +93,11 @@ public class BuildControls : MonoBehaviour
         VisualElement root = _document.rootVisualElement;
         root.Clear();
         root.styleSheets.Add(_styleSheet);
-        root.pickingMode = PickingMode.Position; 
+        root.pickingMode = PickingMode.Position;
+        root.focusable = true;
+        root.Focus();
         root.RegisterCallback<MouseDownEvent>(HandleSceneClick);
+        root.RegisterCallback<KeyDownEvent>(HandleSceneKeyPress);
 
         VisualElement container = CreateElement(classNames: new[]{"container"});
         container.RegisterCallback<MouseDownEvent>(PreventSceneClick);
