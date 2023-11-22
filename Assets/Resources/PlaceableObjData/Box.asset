@@ -16,3 +16,5 @@ MonoBehaviour:
   title: Box
   description: A box with sharp corners!
   menuPreviewImage: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
+  occupiedSpaces:
+  - {x: 0, y: 0}

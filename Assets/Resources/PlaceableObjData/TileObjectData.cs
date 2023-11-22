@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Demo/Tile Object Data")]
 public class TileObjectData : ScriptableObject
@@ -12,5 +12,8 @@ public class TileObjectData : ScriptableObject
     public string Description => description;
     [SerializeField] private Texture2D menuPreviewImage;
     public Texture2D MenuPreviewImage => menuPreviewImage;
-    
+
+    [SerializeField] private List<Vector2> occupiedSpaces = new List<Vector2>(){Vector2.zero};
+    public List<Vector2> OccupiedSpaces => occupiedSpaces;
+
 }

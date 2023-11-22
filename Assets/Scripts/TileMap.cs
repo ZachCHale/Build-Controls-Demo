@@ -10,54 +10,88 @@ public class TileMap : MonoBehaviour
         private TileMap _tileMap;
         public Vector3 WorldPosition => _tileMap.transform.TransformPoint(LocalPosition);
         public readonly Vector3 LocalPosition;
-        public readonly Vector2 MapIndex;
+        public readonly Vector2 TileIndex;
         private TileObjectData _objectData;
         private GameObject _objectInstance;
         private bool _tileIsOccupied;
+        private List<Tile> _tilesContainingSameObject;
         /// <summary>
         /// <para>Creates a tile and calculates its local position based on the given <c>TileMap</c> and tile index.</para>
         /// </summary>
         /// <param name="tileMap">The <c>TileMap</c> containing this tile.</param>
-        /// <param name="mapIndex">The index/key for this tile in the <c>TileMap</c></param>
-        public Tile(TileMap tileMap, Vector2 mapIndex)
+        /// <param name="tileIndex">The index/key for this tile in the <c>TileMap</c></param>
+        public Tile(TileMap tileMap, Vector2 tileIndex)
         {
             _tileMap = tileMap;
-            MapIndex = mapIndex;
+            TileIndex = tileIndex;
             float tileCenterOffset = _tileMap._tileSize / 2;
             LocalPosition = new Vector3(tileCenterOffset, 0, tileCenterOffset) +
-                            new Vector3(tileMap._tileSize * MapIndex.x, 0, tileMap._tileSize * mapIndex.y);
+                            new Vector3(tileMap._tileSize * TileIndex.x, 0, tileMap._tileSize * tileIndex.y);
             _tileIsOccupied = false;
+            _tilesContainingSameObject = new List<Tile>() { this };
         }
         /// <summary>
-        /// <para>For a given <c>TileObjectData</c>, create a new GameObject at the center of the tile.</para>
+        /// <para>For a given <c>TileObjectData</c>, create a new GameObject at the center of the tile. Will also handle
+        /// finding other tiles covered by the GameObject and assign them the same object.</para>
         /// </summary>
         /// <param name="objData"><c>TileObjectData</c> to create a GameObject from.</param>
-        /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile.</returns>
+        /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile,
+        /// there is a GameObject in one of the other tiles covered by the object, or the object extends out of bounds.</returns>
         public bool PlaceNewObject(TileObjectData objData)
         {
-            //Debug.Log("right: " + _tileMap._mapXDir);
-            if (_tileIsOccupied) return false;
-            _objectData = objData;
-            _objectInstance = Instantiate(objData.PrefabReference, _tileMap.transform);
-            _objectInstance.transform.localPosition = LocalPosition;
-            _objectInstance.transform.localRotation = Quaternion.identity;
-            _tileIsOccupied = true;
+            bool objectPlacementIsInBounds = true;
+            bool allCoveredTilesAreEmpty = true;
+            List<Tile> tilesCoveredByObject = new();
+            foreach (Vector2 tileToOccupy in objData.OccupiedSpaces)
+            {
+                Vector2 relativeTileIndex = tileToOccupy + TileIndex;
+                Debug.Log(relativeTileIndex);
+                if (_tileMap.IsIndexInBounds(relativeTileIndex))
+                    tilesCoveredByObject.Add(_tileMap._tiles[relativeTileIndex]);
+                
+                else
+                    objectPlacementIsInBounds = false;
+            }
+
+            foreach (Tile coveredTile in tilesCoveredByObject)
+                if (coveredTile._tileIsOccupied) allCoveredTilesAreEmpty = false;
+
+            if (!(objectPlacementIsInBounds && allCoveredTilesAreEmpty)) return false;
+            
+
+            GameObject newObjectInstance = Instantiate(objData.PrefabReference, _tileMap.transform);
+            newObjectInstance.transform.localPosition = LocalPosition;
+            newObjectInstance.transform.localRotation = Quaternion.identity;
+
+            foreach (Tile coveredTile in tilesCoveredByObject)
+            {
+                coveredTile._objectData = objData;
+                coveredTile._objectInstance = newObjectInstance;
+                coveredTile._tileIsOccupied = true;
+                coveredTile._tilesContainingSameObject = tilesCoveredByObject;
+            }
             return true;
         }
         /// <summary>
-        /// Dispose of any GameObject contained within the tile.
+        /// Dispose of any GameObject contained within the tile. Also handles removing 
         /// </summary>
         /// <param name="removedObjData">When this method returns, contains the <c>TileObjectData</c> of the GameObject
         /// that was removed from the tile. If no tile was removed, remains null.</param>
-        /// <returns><c>true</c> if a GameObject was removed from the tile. <c>false</c> if the tile is already empty.</returns>
+        /// <returns><c>true</c> if a GameObject was removed from the tile and other tiles covered by the object.
+        /// <c>false</c> if the tile is already empty.</returns>
         public bool RemoveObject(out TileObjectData removedObjData)
         {
             removedObjData  = _tileIsOccupied ? _objectData : null;
             if (!_tileIsOccupied) return false;
             Destroy(_objectInstance);
-            _objectData = null;
-            _objectInstance = null;
-            _tileIsOccupied = false;
+            List<Tile> tilesToRemoveFrom = _tilesContainingSameObject;
+            foreach (Tile coveredTile in tilesToRemoveFrom)
+            {
+                coveredTile._objectData = null;
+                coveredTile._objectInstance = null;
+                coveredTile._tileIsOccupied = false;
+                coveredTile._tilesContainingSameObject = new() { coveredTile };
+            }
             return true;
         }
     }
@@ -109,10 +143,7 @@ public class TileMap : MonoBehaviour
     public bool WorldSpaceToMapTileIndex(Vector3 worldPos, out Vector2 mapIndex)
     {
         Vector3 localPos = WorldSpaceToLocalMapSpace(worldPos);
-        bool withinBounds = localPos.x >= _mapOriginLocal.x && 
-                             localPos.x <= _mapEndLocal.x && 
-                             localPos.z >= _mapOriginLocal.z &&
-                             localPos.z <=_mapEndLocal.z;
+        bool withinBounds = IsLocalPositionInBounds(localPos);
         int xIndex = (int)Math.Clamp(localPos.x / _tileSize, _mapOriginLocal.x, _mapEndLocal.x);
         int yIndex = (int)Math.Clamp(localPos.z / _tileSize, _mapOriginLocal.z, _mapEndLocal.z);
         
@@ -156,5 +187,11 @@ public class TileMap : MonoBehaviour
         bool objectWasRemoved = !_tiles[mapIndex].RemoveObject(out removedObjData);
         return objectWasRemoved;
     }
+
+    private bool IsIndexInBounds(Vector2 tileIndex) => tileIndex.x >= 0 && tileIndex.x < _tileCountX && tileIndex.y >= 0 && tileIndex.y < _tileCountY;
+    private bool IsLocalPositionInBounds(Vector3 localPosition) => localPosition.x >= _mapOriginLocal.x && 
+                                                                   localPosition.x <= _mapEndLocal.x && 
+                                                                   localPosition.z >= _mapOriginLocal.z &&
+                                                                   localPosition.z <=_mapEndLocal.z;
 }
 
