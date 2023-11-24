@@ -3,7 +3,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UIElements;
-using CardinalDirections;
+using ZHDev.CardinalDirections;
+using ZHDev.TileMaps;
 
 [RequireComponent(typeof(UIDocument))]
 public class BuildControls : MonoBehaviour

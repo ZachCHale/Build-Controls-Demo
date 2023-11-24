@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace CardinalDirections
+namespace ZHDev.CardinalDirections
 {
     public enum CardinalDirection
     {
