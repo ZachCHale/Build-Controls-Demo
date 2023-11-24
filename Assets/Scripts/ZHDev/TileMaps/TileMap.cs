@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using ZHDev.CardinalDirections;
+using ZHDev.Extensions;
 
 namespace ZHDev.TileMaps
 {
@@ -62,10 +63,12 @@ namespace ZHDev.TileMaps
             mapIndex = new(xIndex, yIndex);
             return withinBounds;
         }
+
         /// <summary>
         /// For a given <c>TileObjectData</c>, adds it to the tile under the mouse.
         /// </summary>
         /// <param name="objData"><c>TileObjectData</c> to add to a tile.</param>
+        /// <param name="objectFacingDirection">Object will be placed with its forward direction facing this Cardinal Direction</param>
         /// <returns><c>true</c> if the new object was placed successfully. <c>false</c> the tile was already occupied by an object,
         /// or if the mouse is pointing out of the bounds, in the opposite direction of the map, or parallel to the map. </returns>
         public bool PlaceObjectAtMousePosition(TileObjectData objData, CardinalDirection objectFacingDirection)

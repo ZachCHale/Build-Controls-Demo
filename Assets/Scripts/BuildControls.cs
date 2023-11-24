@@ -34,7 +34,7 @@ public class BuildControls : MonoBehaviour
     {
         if (evt.button != 0) return;
         if (isInDeleteMode)
-            _map.RemoveObjectAtMousePosition(out TileObjectData removedObjData);
+            _map.RemoveObjectAtMousePosition(out _);
         else if(_selectedObjData != null)
             _map.PlaceObjectAtMousePosition(_selectedObjData, _currentFacingDirection);
     }

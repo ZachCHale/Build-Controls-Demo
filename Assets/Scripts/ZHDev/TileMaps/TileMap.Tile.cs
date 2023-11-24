@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ZHDev.CardinalDirections;
+using ZHDev.Extensions;
 
 namespace ZHDev.TileMaps
 {
-    public partial class TileMap : MonoBehaviour
+    public partial class TileMap
     {
         private class Tile
         {
-            private TileMap _tileMap;
+            private readonly TileMap _tileMap;
             public Vector3 WorldPosition => _tileMap.transform.TransformPoint(LocalPosition);
             public readonly Vector3 LocalPosition;
             public readonly Vector2Int TileIndex;
@@ -38,7 +39,7 @@ namespace ZHDev.TileMaps
             /// Cardinal Direction. Will also handle finding other tiles covered by the GameObject and assign them the same object.</para>
             /// </summary>
             /// <param name="objData"><c>TileObjectData</c> to create a GameObject from.</param>
-            /// <param name="objectFacingDirection">Object will be place with its forward direction facing this Cardinal Direction</param>
+            /// <param name="objectFacingDirection">Object will be placed with its forward direction facing this Cardinal Direction</param>
             /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile,
             /// there is a GameObject in one of the other tiles covered by the object, or the object extends out of bounds.</returns>
             public bool PlaceNewObject(TileObjectData objData, CardinalDirection objectFacingDirection)
