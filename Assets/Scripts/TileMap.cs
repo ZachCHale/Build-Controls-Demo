@@ -31,11 +31,13 @@ public class TileMap : MonoBehaviour
             _tileIsOccupied = false;
             _tilesContainingSameObject = new List<Tile>() { this };
         }
+
         /// <summary>
-        /// <para>For a given <c>TileObjectData</c>, create a new GameObject at the center of the tile. Will also handle
-        /// finding other tiles covered by the GameObject and assign them the same object.</para>
+        /// <para>For a given <c>TileObjectData</c>, create a new GameObject at the center of the tile, facing the given
+        /// Cardinal Direction. Will also handle finding other tiles covered by the GameObject and assign them the same object.</para>
         /// </summary>
         /// <param name="objData"><c>TileObjectData</c> to create a GameObject from.</param>
+        /// <param name="objectFacingDirection">Object will be place with its forward direction facing this Cardinal Direction</param>
         /// <returns><c>true</c> if a new GameObject was added to the tile. <c>false</c> if a GameObject is already in the tile,
         /// there is a GameObject in one of the other tiles covered by the object, or the object extends out of bounds.</returns>
         public bool PlaceNewObject(TileObjectData objData, CardinalDirection objectFacingDirection)
@@ -43,7 +45,8 @@ public class TileMap : MonoBehaviour
             bool objectPlacementIsInBounds = true;
             bool allCoveredTilesAreEmpty = true;
             List<Tile> tilesCoveredByObject = new();
-            List<Vector2Int> spacesToOccupy = _tileMap.GetVectorsTransformedForFacingDirection(objData.OccupiedSpaces, objectFacingDirection);
+            List<Vector2Int> spacesToOccupy = FaceVectorsAtCardinalDirection(objData.OccupiedSpaces, objectFacingDirection);
+            
             foreach (Vector2Int tileToOccupy in spacesToOccupy)
             {
                 Vector2Int relativeTileIndex = tileToOccupy + TileIndex;
@@ -59,9 +62,8 @@ public class TileMap : MonoBehaviour
 
             if (!(objectPlacementIsInBounds && allCoveredTilesAreEmpty)) return false;
             
-
             GameObject newObjectInstance = Instantiate(objData.PrefabReference, _tileMap.transform);
-            newObjectInstance.transform.localRotation = Quaternion.identity * _tileMap.GetRotationForFacingDirection(objectFacingDirection);
+            newObjectInstance.transform.localRotation = objectFacingDirection.ToRotationFromNorth();
             newObjectInstance.transform.localPosition = LocalPosition;
 
             foreach (Tile coveredTile in tilesCoveredByObject)
@@ -94,6 +96,13 @@ public class TileMap : MonoBehaviour
                 coveredTile._tilesContainingSameObject = new() { coveredTile };
             }
             return true;
+        }
+        private List<Vector2Int> FaceVectorsAtCardinalDirection(List<Vector2Int> vectorsToTransform, CardinalDirection facingDirection)
+        {
+            List<Vector2Int> transformedVectors = new();
+            foreach (Vector2Int vec in vectorsToTransform)
+                transformedVectors.Add(vec.RotateDegrees(facingDirection.ToDegreesPastNorth()));
+            return transformedVectors;
         }
     }
     
@@ -194,76 +203,5 @@ public class TileMap : MonoBehaviour
                                                                    localPosition.x <= _mapEndLocal.x && 
                                                                    localPosition.z >= _mapOriginLocal.z &&
                                                                    localPosition.z <=_mapEndLocal.z;
-
-    private Vector2Int RotateVector2ByRadians(Vector2Int vector, float radians)
-    {
-        return new Vector2Int(Mathf.RoundToInt(vector.x * Mathf.Cos(radians) + vector.y * Mathf.Sin(radians)),
-            Mathf.RoundToInt(-vector.x * Mathf.Sin(radians) + vector.y * Mathf.Cos(radians)));
-    }
-    private Vector2Int RotateVector2ByDegrees(Vector2Int vector, float degrees) => RotateVector2ByRadians(vector, Mathf.Deg2Rad * degrees);
-
-    private List<Vector2Int> RotateVectors(List<Vector2Int> vectorsToRotate, float degrees)
-    {
-        List<Vector2Int> rotatedVectors = new();
-        foreach (Vector2Int vector in vectorsToRotate)
-            rotatedVectors.Add(RotateVector2ByDegrees(vector, degrees));
-        return rotatedVectors;
-    }
-
-    private List<Vector2Int> TransformVectorsNorth(List<Vector2Int> vectorsToTransform) =>
-        RotateVectors(vectorsToTransform, 0);
-    private List<Vector2Int> TransformVectorsEast(List<Vector2Int> vectorsToTransform) =>
-        RotateVectors(vectorsToTransform, 90);
-    private List<Vector2Int> TransformVectorsSouth(List<Vector2Int> vectorsToTransform) =>
-        RotateVectors(vectorsToTransform, 180);
-    private List<Vector2Int> TransformVectorsWest(List<Vector2Int> vectorsToTransform) =>
-        RotateVectors(vectorsToTransform, 270);
-
-    private List<Vector2Int> GetVectorsTransformedForFacingDirection(List<Vector2Int> vectorsToTransform, CardinalDirection facingDirection)
-    {
-        switch (facingDirection)
-        {
-            case CardinalDirection.North:
-                return TransformVectorsNorth(vectorsToTransform);
-                break;
-            case CardinalDirection.East:
-                return TransformVectorsEast(vectorsToTransform);
-                break;
-            case CardinalDirection.South:
-                return TransformVectorsSouth(vectorsToTransform);
-                break;
-            case CardinalDirection.West:
-                return TransformVectorsWest(vectorsToTransform);
-                break;
-        }
-
-        return vectorsToTransform;
-    }
-
-    private Quaternion GetRotationForFacingDirection(CardinalDirection facingDirection)
-    {
-        switch (facingDirection)
-        {
-            case CardinalDirection.North:
-                return NorthRotation;
-                break;
-            case CardinalDirection.East:
-                return EastRotation;
-                break;
-            case CardinalDirection.South:
-                return SouthRotation;
-                break;
-            case CardinalDirection.West:
-                return WestRotation;
-                break;
-        }
-
-        return Quaternion.identity;
-    }
-    private Quaternion NorthRotation => Quaternion.identity;
-    private Quaternion EastRotation => Quaternion.AngleAxis(90, Vector3.up);
-    private Quaternion SouthRotation => Quaternion.AngleAxis(180, Vector3.up);
-    private Quaternion WestRotation => Quaternion.AngleAxis(270, Vector3.up);
-    
 }
 
