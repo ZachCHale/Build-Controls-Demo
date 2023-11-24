@@ -9,8 +9,12 @@ namespace ZHDev.TileMaps
 {
     public partial class TileMap : MonoBehaviour
     {
-        private readonly int _tileCountX = 10;
-        private readonly int _tileCountY = 20;
+        private const int SIZE_MAX_LIMIT = 100;
+        private const int SIZE_MIN_LIMIT = 1;
+        
+        [SerializeField] [Range(SIZE_MIN_LIMIT, SIZE_MAX_LIMIT)] private int _tileCountX = 10;
+        [SerializeField] [Range(SIZE_MIN_LIMIT, SIZE_MAX_LIMIT)] private int _tileCountY = 10;
+        
         private readonly float _tileSize = 1f;
         private Camera _mainCamera;
     
@@ -23,13 +27,15 @@ namespace ZHDev.TileMaps
         private Vector3 _mapNormal => transform.up;
         private Vector3 _mapXDir => transform.right;
         private Vector3 _mapYDir => transform.forward;
+
     
         private void Awake()
         {
             _mainCamera = Camera.main;
             foreach (int x in Enumerable.Range(0, _tileCountX))
-            foreach (int y in Enumerable.Range(0, _tileCountY))
-                _tiles.Add(new Vector2Int(x,y), new Tile(this, new(x,y)));
+                foreach (int y in Enumerable.Range(0, _tileCountY))
+                    _tiles.Add(new Vector2Int(x,y), new Tile(this, new(x,y)));
+            
         }
         /// <summary>
         /// <para>For a given position in world space, returns the position relative to the map's position and orientation.</para>
@@ -108,6 +114,7 @@ namespace ZHDev.TileMaps
                                                                        localPosition.x <= _mapEndLocal.x && 
                                                                        localPosition.z >= _mapOriginLocal.z &&
                                                                        localPosition.z <=_mapEndLocal.z;
+        
     }
 }
 
