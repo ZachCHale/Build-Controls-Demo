@@ -19,12 +19,13 @@ namespace ZHDev.TileMaps
         private Camera _mainCamera;
     
         private readonly Dictionary<Vector2Int, Tile>_tiles = new ();
-        private Vector3 _mapOriginWorld => transform.position;
+        public Vector3 MapOriginWorld => transform.position;
+        
         private Vector3 _mapEndWorld => transform.position + _tileSize * ((_mapXDir * _tileCountX) + (_mapYDir * _tileCountY));
         private Vector3 _mapOriginLocal => Vector3.zero;
         private Vector3 _mapEndLocal => new (_tileSize * _tileCountX, 0, _tileSize * _tileCountY);
 
-        private Vector3 _mapNormal => transform.up;
+        public Vector3 MapNormal => transform.up;
         private Vector3 _mapXDir => transform.right;
         private Vector3 _mapYDir => transform.forward;
 
@@ -44,14 +45,15 @@ namespace ZHDev.TileMaps
         /// <returns>New position relative to the map's position and orientation.</returns>
         public Vector3 WorldSpaceToLocalMapSpace(Vector3 worldPos)
         {
-            Vector3 xProjection = Vector3.Project(worldPos - _mapOriginWorld, _mapXDir);
-            Vector3 yProjection = Vector3.Project(worldPos - _mapOriginWorld,_mapYDir);
+            Vector3 xProjection = Vector3.Project(worldPos - MapOriginWorld, _mapXDir);
+            Vector3 yProjection = Vector3.Project(worldPos - MapOriginWorld,_mapYDir);
 
             float localX = xProjection.magnitude * Math.Sign(Vector3.Dot(xProjection, _mapXDir));
             float localY = yProjection.magnitude * Math.Sign(Vector3.Dot(yProjection, _mapYDir));
         
             return new Vector3(localX, 0, localY);
         }
+        
         /// <summary>
         /// <para>For a given position in world space, finds the index of the tile containing that point. </para>
         /// </summary>
@@ -69,73 +71,28 @@ namespace ZHDev.TileMaps
             mapIndex = new(xIndex, yIndex);
             return withinBounds;
         }
-
-        /// <summary>
-        /// For a given <c>TileObjectData</c>, adds it to the tile under the mouse.
-        /// </summary>
-        /// <param name="objData"><c>TileObjectData</c> to add to a tile.</param>
-        /// <param name="objectFacingDirection">Object will be placed with its forward direction facing this Cardinal Direction</param>
-        /// <returns><c>true</c> if the new object was placed successfully. <c>false</c> the tile was already occupied by an object,
-        /// or if the mouse is pointing out of the bounds, in the opposite direction of the map, or parallel to the map. </returns>
-        public bool PlaceObjectAtMousePosition(TileObjectData objData, CardinalDirection objectFacingDirection)
+        
+        public void AddAt(Vector2Int targetIndex, TileableObject objToAdd)
         {
-            bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
-            bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
-        
-            if (!inBounds || !validPosition) return false;
-        
-            bool objectWasPlaced = !_tiles[mapIndex].PlaceNewObject(objData, objectFacingDirection);
+            if (!IsIndexInBounds(targetIndex)) return;
+            _tiles[targetIndex].AddToTile(objToAdd);
+        }
 
-            return objectWasPlaced;
-        }
-    
-        /// <summary>
-        /// Attempts to remove an object from the tile under the mouse pointer.
-        /// </summary>
-        /// <param name="removedObjData">When this method returns, contains the <c>TileObjectData</c> of the object removed if there was an
-        /// object removed; otherwise, defaults to null.</param>
-        /// <returns><c>true</c> if an object was removed successfully. <c>false</c> if no object was removed.</returns>
-        public bool RemoveObjectAtMousePosition(out TileObjectData removedObjData)
+        public void RemoveAt(Vector2Int targetIndex)
         {
-            bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
-            bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
-            if (!inBounds || !validPosition)
-            {
-                removedObjData = null;
-                return false;
-            }
-        
-            bool objectWasRemoved = !_tiles[mapIndex].RemoveObject(out removedObjData);
-            return objectWasRemoved;
+            if (!IsIndexInBounds(targetIndex)) return;
+            _tiles[targetIndex].RemoveFromTile();
         }
+
+        public void ParentToMapTransform(Transform newChildTransform) => newChildTransform.parent = transform;
 
         private bool IsIndexInBounds(Vector2Int tileIndex) => tileIndex.x >= 0 && tileIndex.x < _tileCountX && tileIndex.y >= 0 && tileIndex.y < _tileCountY;
+
         private bool IsLocalPositionInBounds(Vector3 localPosition) => localPosition.x >= _mapOriginLocal.x && 
                                                                        localPosition.x <= _mapEndLocal.x && 
                                                                        localPosition.z >= _mapOriginLocal.z &&
                                                                        localPosition.z <=_mapEndLocal.z;   
-        //__________________________________
-        public void ParentToMapTransform(Transform newChildTransform) => newChildTransform.parent = transform;
 
-        public void AddAtMouse(TileableObject objToAdd)
-        {
-            bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
-            bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
-        
-            if (!inBounds || !validPosition) return;
-            
-            _tiles[mapIndex].AddToTile(objToAdd);
-        }
-
-        public void RemoveAtMouse()
-        {
-            bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
-            bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
-        
-            if (!inBounds || !validPosition) return;
-            
-            _tiles[mapIndex].RemoveFromTile();
-        }
     }
 }
 

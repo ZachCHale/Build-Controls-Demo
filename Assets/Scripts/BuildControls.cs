@@ -3,8 +3,10 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 using ZHDev.CardinalDirections;
+using ZHDev.Extensions;
 using ZHDev.TileMaps;
 
 [RequireComponent(typeof(UIDocument))]
@@ -34,14 +36,20 @@ public class BuildControls : MonoBehaviour
     private void HandleSceneClick(MouseDownEvent evt)
     {
         if (evt.button != 0) return;
+        Vector2 screenPoint = evt.mousePosition;
+        screenPoint.y = Screen.height-screenPoint.y;
+        Camera.main.GetScreenPointIntersectionWithPlane(screenPoint, _map.MapNormal, _map.MapOriginWorld, out Vector3 targetPosition );
+        bool inBounds = _map.WorldSpaceToMapTileIndex(targetPosition, out Vector2Int targetIndex);
+        if (!inBounds) return;
         if (isInDeleteMode)
         {
-            _map.RemoveAtMouse();
+            _map.RemoveAt(targetIndex);
         }
         else if (_selectedObjData != null)
         {
+            
             DemoTileableObject createdObject = new(_selectedObjData, _currentFacingDirection);
-            _map.AddAtMouse(createdObject);
+            _map.AddAt(targetIndex, createdObject);
         }
     }
 
