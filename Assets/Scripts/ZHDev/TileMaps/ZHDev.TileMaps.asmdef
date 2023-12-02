@@ -1,0 +1,17 @@
+{
+    "name": "ZHDev.TileMaps",
+    "rootNamespace": "ZHDev.TileMaps",
+    "references": [
+        "GUID:e2634a6f3732afb46ba4ee3630e5d92b",
+        "GUID:fae3c8fa19f0be94fbd7e1fe30981f2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
