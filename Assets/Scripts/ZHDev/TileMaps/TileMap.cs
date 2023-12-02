@@ -16,7 +16,6 @@ namespace ZHDev.TileMaps
         [SerializeField] [Range(SIZE_MIN_LIMIT, SIZE_MAX_LIMIT)] private int _tileCountY = 10;
         
         private readonly float _tileSize = 1f;
-        private Camera _mainCamera;
     
         private readonly Dictionary<Vector2Int, Tile>_tiles = new ();
         public Vector3 MapOriginWorld => transform.position;
@@ -32,7 +31,6 @@ namespace ZHDev.TileMaps
     
         private void Awake()
         {
-            _mainCamera = Camera.main;
             foreach (int x in Enumerable.Range(0, _tileCountX))
                 foreach (int y in Enumerable.Range(0, _tileCountY))
                     _tiles.Add(new Vector2Int(x,y), new Tile(this, new(x,y)));
@@ -82,6 +80,11 @@ namespace ZHDev.TileMaps
         {
             if (!IsIndexInBounds(targetIndex)) return;
             _tiles[targetIndex].RemoveFromTile();
+        }
+
+        public Tile GetTileAt(Vector2Int targetIndex)
+        {
+            return !IsIndexInBounds(targetIndex) ? null : _tiles[targetIndex];
         }
 
         public void ParentToMapTransform(Transform newChildTransform) => newChildTransform.parent = transform;

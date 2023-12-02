@@ -120,6 +120,8 @@ namespace ZHDev.TileMaps
 
             public void AddToTile(TileableObject objToAdd)
             {
+                if(_containedObject!=null && _containedObject != objToAdd)
+                    RemoveFromTile();
                 _containedObject = objToAdd;
                 objToAdd.OnAddedToTile(this);
             }
@@ -128,6 +130,18 @@ namespace ZHDev.TileMaps
             {
                 if(_containedObject != null) _containedObject.OnRemovedFromTile();
                 _containedObject = null;
+            }
+
+            public void RemoveFromTileUnhandled()
+            {
+                _containedObject = null;
+            }
+            
+            public void AddToTileUnhandled(TileableObject objToAdd)
+            {
+                if(_containedObject != null && _containedObject != objToAdd)
+                    RemoveFromTile();
+                _containedObject = objToAdd;
             }
 
             public TileMap TileMap => _tileMap;
