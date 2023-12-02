@@ -7,7 +7,7 @@ namespace ZHDev.TileMaps
 {
     public abstract class TileableObject
     {
-        protected internal abstract void OnAddedToTile(TileMap.Tile targetTile);
+        protected internal abstract void OnAddedToTile(Tile targetTile);
         protected internal abstract void OnRemovedFromTile();
     }
 }

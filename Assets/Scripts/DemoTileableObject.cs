@@ -10,7 +10,7 @@ public class DemoTileableObject : TileableObject
     private GameObject _gameObjectInstance;
     private TileObjectData _resourceData;
     private CardinalDirection _forwardFacingDirection;
-    private List<TileMap.Tile> _coveredTiles;
+    private List<Tile> _coveredTiles;
     
     public DemoTileableObject(TileObjectData resourceData, CardinalDirection forwardFacingDirection)
     {
@@ -18,7 +18,7 @@ public class DemoTileableObject : TileableObject
         _forwardFacingDirection = forwardFacingDirection;
         _coveredTiles = new();
     }
-    protected override void OnAddedToTile(TileMap.Tile targetTile)
+    protected override void OnAddedToTile(Tile targetTile)
     {
         if (_gameObjectInstance == null)
         {
@@ -35,7 +35,6 @@ public class DemoTileableObject : TileableObject
 
         foreach (var index in allCoveredIndexes)
         {
-            Debug.Log(index);
             targetTile.TileMap.GetTileAt(index).AddToTileUnhandled(this);
             _coveredTiles.Add(targetTile.TileMap.GetTileAt(index));
         }

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using ZHDev.CardinalDirections;
-using ZHDev.Extensions;
 
 namespace ZHDev.TileMaps
 {
@@ -16,6 +14,7 @@ namespace ZHDev.TileMaps
         [SerializeField] [Range(SIZE_MIN_LIMIT, SIZE_MAX_LIMIT)] private int _tileCountY = 10;
         
         private readonly float _tileSize = 1f;
+        public float TileSize => _tileSize;
     
         private readonly Dictionary<Vector2Int, Tile>_tiles = new ();
         public Vector3 MapOriginWorld => transform.position;
