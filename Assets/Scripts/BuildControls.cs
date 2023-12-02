@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -34,9 +35,14 @@ public class BuildControls : MonoBehaviour
     {
         if (evt.button != 0) return;
         if (isInDeleteMode)
-            _map.RemoveObjectAtMousePosition(out _);
-        else if(_selectedObjData != null)
-            _map.PlaceObjectAtMousePosition(_selectedObjData, _currentFacingDirection);
+        {
+            _map.RemoveAtMouse();
+        }
+        else if (_selectedObjData != null)
+        {
+            DemoTileableObject createdObject = new(_selectedObjData, _currentFacingDirection);
+            _map.AddAtMouse(createdObject);
+        }
     }
 
     private void HandleSceneKeyPress(KeyDownEvent evt)

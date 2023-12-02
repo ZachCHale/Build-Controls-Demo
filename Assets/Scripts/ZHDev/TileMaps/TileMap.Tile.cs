@@ -7,7 +7,7 @@ namespace ZHDev.TileMaps
 {
     public partial class TileMap
     {
-        private class Tile
+        public class Tile
         {
             private readonly TileMap _tileMap;
             public Vector3 WorldPosition => _tileMap.transform.TransformPoint(LocalPosition);
@@ -113,6 +113,24 @@ namespace ZHDev.TileMaps
                     transformedVectors.Add(vec.RotateDegrees(facingDirection.ToDegreesPastNorth()));
                 return transformedVectors;
             }
+            
+            //_________________________________
+
+            private TileableObject _containedObject;
+
+            public void AddToTile(TileableObject objToAdd)
+            {
+                _containedObject = objToAdd;
+                objToAdd.OnAddedToTile(this);
+            }
+
+            public void RemoveFromTile()
+            {
+                if(_containedObject != null) _containedObject.OnRemovedFromTile();
+                _containedObject = null;
+            }
+
+            public TileMap TileMap => _tileMap;
         }
     }
 }

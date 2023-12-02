@@ -113,8 +113,29 @@ namespace ZHDev.TileMaps
         private bool IsLocalPositionInBounds(Vector3 localPosition) => localPosition.x >= _mapOriginLocal.x && 
                                                                        localPosition.x <= _mapEndLocal.x && 
                                                                        localPosition.z >= _mapOriginLocal.z &&
-                                                                       localPosition.z <=_mapEndLocal.z;
+                                                                       localPosition.z <=_mapEndLocal.z;   
+        //__________________________________
+        public void ParentToMapTransform(Transform newChildTransform) => newChildTransform.parent = transform;
+
+        public void AddAtMouse(TileableObject objToAdd)
+        {
+            bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
+            bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
         
+            if (!inBounds || !validPosition) return;
+            
+            _tiles[mapIndex].AddToTile(objToAdd);
+        }
+
+        public void RemoveAtMouse()
+        {
+            bool validPosition = _mainCamera.GetScreenPointIntersectionWithPlane(Input.mousePosition, _mapNormal, _mapOriginWorld, out Vector3 worldPos);
+            bool inBounds = WorldSpaceToMapTileIndex(worldPos, out Vector2Int mapIndex);
+        
+            if (!inBounds || !validPosition) return;
+            
+            _tiles[mapIndex].RemoveFromTile();
+        }
     }
 }
 
