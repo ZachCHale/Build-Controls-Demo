@@ -17,6 +17,8 @@ namespace ZHDev.TileMaps
         public float TileSize => _tileSize;
     
         private readonly Dictionary<Vector2Int, Tile>_tiles = new ();
+        private readonly Dictionary<Guid, List<Tile>> _tileableToTilesDictionary = new();
+        
         public Vector3 MapOriginWorld => transform.position;
         
         private Vector3 _mapEndWorld => transform.position + _tileSize * ((_mapXDir * _tileCountX) + (_mapYDir * _tileCountY));
@@ -73,17 +75,32 @@ namespace ZHDev.TileMaps
         {
             if (!IsIndexInBounds(targetIndex)) return;
             _tiles[targetIndex].AddToTile(objToAdd);
+            if (!_tileableToTilesDictionary.ContainsKey(objToAdd.Guid))
+                _tileableToTilesDictionary.Add(objToAdd.Guid, new List<Tile>());
+            _tileableToTilesDictionary[objToAdd.Guid].Add(_tiles[targetIndex]);
         }
 
         public void RemoveAt(Vector2Int targetIndex)
         {
             if (!IsIndexInBounds(targetIndex)) return;
+            TileableObject objToRemove = _tiles[targetIndex].ContainedObject;
+            if (_tileableToTilesDictionary.ContainsKey(objToRemove.Guid))
+                _tileableToTilesDictionary[objToRemove.Guid].Remove(_tiles[targetIndex]);
             _tiles[targetIndex].RemoveFromTile();
+            
         }
 
-        public Tile GetTileAt(Vector2Int targetIndex)
+        public Tile GetTile(Vector2Int targetIndex)
         {
             return !IsIndexInBounds(targetIndex) ? null : _tiles[targetIndex];
+        }
+
+        public List<Tile> GetTiles(List<Vector2Int> targetIndices)
+        {
+            List<Tile> retrievedTiles = new();
+            foreach (var i in targetIndices)
+                retrievedTiles.Add(_tiles[i]);
+            return retrievedTiles;
         }
 
         public void ParentToMapTransform(Transform newChildTransform) => newChildTransform.parent = transform;

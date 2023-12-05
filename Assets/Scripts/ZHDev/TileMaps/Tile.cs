@@ -15,6 +15,7 @@ namespace ZHDev.TileMaps
         public readonly Vector3 LocalPosition;
         public readonly Vector2Int TileIndex;
         private TileableObject _containedObject;
+        internal TileableObject ContainedObject => _containedObject;
             
         /// <summary>
         /// <para>Creates a tile and calculates its local position based on the given <c>TileMap</c> and tile index.</para>
@@ -30,7 +31,7 @@ namespace ZHDev.TileMaps
                             new Vector3(tileMap.TileSize * TileIndex.x, 0, tileMap.TileSize * tileIndex.y);
         }
             
-        public void AddToTile(TileableObject objToAdd)
+        internal void AddToTile(TileableObject objToAdd)
         {
             if(_containedObject!=null && _containedObject != objToAdd)
                 RemoveFromTile();
@@ -38,18 +39,18 @@ namespace ZHDev.TileMaps
             objToAdd.OnAddedToTile(this);
         }
 
-        public void RemoveFromTile()
+        internal void RemoveFromTile()
         {
             if(_containedObject != null) _containedObject.OnRemovedFromTile();
             _containedObject = null;
         }
 
-        public void RemoveFromTileUnhandled()
+        internal void RemoveFromTileUnhandled()
         {
             _containedObject = null;
         }
             
-        public void AddToTileUnhandled(TileableObject objToAdd)
+        internal void AddToTileUnhandled(TileableObject objToAdd)
         {
             if(_containedObject != null && _containedObject != objToAdd)
                 RemoveFromTile();

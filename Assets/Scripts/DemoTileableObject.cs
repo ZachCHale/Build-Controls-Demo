@@ -11,6 +11,11 @@ public class DemoTileableObject : TileableObject
     private TileObjectData _resourceData;
     private CardinalDirection _forwardFacingDirection;
     private List<Tile> _coveredTiles;
+    private Tile _pivotTile;
+    private List<Vector2Int> _coveredTileIndices;
+    private Vector2Int _pivotTileIndex;
+    
+
     
     public DemoTileableObject(TileObjectData resourceData, CardinalDirection forwardFacingDirection)
     {
@@ -20,24 +25,9 @@ public class DemoTileableObject : TileableObject
     }
     protected override void OnAddedToTile(Tile targetTile)
     {
-        if (_gameObjectInstance == null)
-        {
-            _gameObjectInstance = Object.Instantiate(_resourceData.PrefabReference);
-            _gameObjectInstance.SetActive(false);
-        }
-        targetTile.TileMap.ParentToMapTransform(_gameObjectInstance.transform);
-        _gameObjectInstance.transform.localPosition = targetTile.LocalPosition;
-        _gameObjectInstance.transform.localRotation = _forwardFacingDirection.ToRotationFromNorth();
-        _gameObjectInstance.SetActive(true);
-        
-        List<Vector2Int> allCoveredIndexes =
-            GetAllCoveredTilIndices(targetTile.TileIndex);
-
-        foreach (var index in allCoveredIndexes)
-        {
-            targetTile.TileMap.GetTileAt(index).AddToTileUnhandled(this);
-            _coveredTiles.Add(targetTile.TileMap.GetTileAt(index));
-        }
+        _pivotTile = targetTile;
+        CreateAndPlaceGameObjectOnPivotTile();
+        AssignObjectToCoveredTiles();
     }
 
     protected override void OnRemovedFromTile()
@@ -55,5 +45,26 @@ public class DemoTileableObject : TileableObject
         foreach (Vector2Int vec in _resourceData.OccupiedSpaces)
             transformedVectors.Add(vec.RotateDegrees(_forwardFacingDirection.ToDegreesPastNorth()) + originIndex);
         return transformedVectors;
+    }
+
+    private void CreateAndPlaceGameObjectOnPivotTile()
+    {
+        if (_gameObjectInstance == null)
+        {
+            _gameObjectInstance = Object.Instantiate(_resourceData.PrefabReference);
+        }
+        _pivotTile.TileMap.ParentToMapTransform(_gameObjectInstance.transform);
+        _gameObjectInstance.transform.localPosition = _pivotTile.LocalPosition;
+        _gameObjectInstance.transform.localRotation = _forwardFacingDirection.ToRotationFromNorth();
+    }
+
+    private void AssignObjectToCoveredTiles()
+    {
+        List<Vector2Int> allCoveredIndices = GetAllCoveredTilIndices(_pivotTile.TileIndex);
+        _coveredTiles = _pivotTile.TileMap.GetTiles(allCoveredIndices);
+        foreach (var t in _coveredTiles)
+        {
+            t.AddToTileUnhandled(this);
+        }
     }
 }
