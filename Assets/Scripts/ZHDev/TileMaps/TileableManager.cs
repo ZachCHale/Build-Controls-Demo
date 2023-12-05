@@ -7,9 +7,6 @@ namespace ZHDev.TileMaps
 {
     public class TileableManager : MonoBehaviour
     {
-        private readonly Dictionary<Vector2Int, Tile>_tiles = new ();
-        private readonly Dictionary<Guid, List<Tile>> _tileableToTilesDictionary = new();
-        
         private readonly float _gapSize = 1f;
         public float GapSize => _gapSize;
         
@@ -18,59 +15,81 @@ namespace ZHDev.TileMaps
         public Vector3 Up => transform.up;
         public Vector3 Forward => transform.forward;
         public Vector3 Right => transform.right;
-
         
-        //might be able to use strategy pattern later, mostly for custom, strategies
-        public enum OverwriteStrategy
-        {
-            DeleteConflictingObject,
-            TransferConflictingIndicesToThisObject,
-            //Cancel
-            //ExcludeConflictingIndices
-            //Custom, might be dependent on state of tileables in indices or something
-        }
-        
-        private Dictionary<Vector2Int, TileableObject> _indexToObjDict;
+        private Dictionary<Vector2Int, Tileable> _indexToObjDict;
         private Dictionary<Guid, List<Vector2Int>> _objGuidToIndices;
         
-        public T CreateTileable<T>(Vector2Int targetIndex) where T : TileableObject, new()
+        public T CreateStaticTileable<T>(Vector2Int targetIndex) where T : StaticTileable, new()
         {
-            T newTileable = new T();
-            _objGuidToIndices.Add(newTileable.Guid, new() { targetIndex });
-            AssignOwnerToIndex(targetIndex, newTileable);
+            T newTileable = new T(){_manager = this};
+            
+            _objGuidToIndices.Add(newTileable.Guid, new List<Vector2Int>() { targetIndex });
+            AssignOwnerToIndex(newTileable, targetIndex);
+            newTileable.OnCreated();
             return newTileable;
         }
-        public T CreateTileable<T>(List<Vector2Int> targetIndices) where T : TileableObject, new()
+        
+        public T CreateStaticTileable<T>(List<Vector2Int> targetIndices) where T : StaticTileable, new()
         {
-            T newTileable = new T();
+            T newTileable = new T(){_manager = this};
             _objGuidToIndices.Add(newTileable.Guid, new(targetIndices));
             foreach (var i in targetIndices)
-                AssignOwnerToIndex(i, newTileable);
+                AssignOwnerToIndex(newTileable, i);
+            newTileable.OnCreated();
             return newTileable;
         }
 
-        public void RemoveTileable(TileableObject obj)
+        internal void RemoveStaticTileable(StaticTileable obj)
         {
             if(!_objGuidToIndices.ContainsKey(obj.Guid))
                 Debug.LogError($"Object with Guid \"{obj.Guid}\" does not exist in TileableManager");
+            obj.OnDeleted();
             List<Vector2Int> indices = _objGuidToIndices[obj.Guid];
             foreach (var i in indices)
                 _indexToObjDict.Remove(i);
             _objGuidToIndices.Remove(obj.Guid);
         }
 
-        public bool TryGetTileableAt(Vector2Int targetIndex, out TileableObject outObj)
+        public T CreateDynamicTileable<T>() where T : DynamicTileable, new()
+        {
+            return new T() { _manager = this };
+        }
+
+        internal void AddToDynamicTileable(DynamicTileable dTileable, Vector2Int newIndex)
+        {
+            AssignOwnerToIndex(dTileable, newIndex);
+        }
+        
+        internal bool RemoveFromDynamicTileable(DynamicTileable dTileable, Vector2Int targetIndex)
+        {
+            if (!TryGetOwnerOfIndex(targetIndex, out Tileable actualOwner) ||
+                actualOwner.Guid != dTileable.Guid) return false;
+            _objGuidToIndices.Remove(dTileable.Guid);
+            _indexToObjDict.Remove(targetIndex);
+            return true;
+        }
+
+        public bool TryGetOwnerOfIndex(Vector2Int targetIndex, out Tileable outObj)
         {
             outObj = null;
             if (!_indexToObjDict.ContainsKey(targetIndex)) return false;
             outObj = _indexToObjDict[targetIndex];
             return true;
         }
-
-        private void AssignOwnerToIndex(Vector2Int index, TileableObject ownerObject)
+        
+        public List<Vector2Int> GetIndicesOwnedBy(Tileable targetObject)
         {
-            if (!_indexToObjDict.TryAdd(index, ownerObject))
-                _indexToObjDict[index] = ownerObject;
+            List<Vector2Int> retrievedIndices = new();
+            Guid objGuid = targetObject.Guid;
+            if (_objGuidToIndices.ContainsKey(objGuid))
+                retrievedIndices = new(_objGuidToIndices[objGuid]);
+            return retrievedIndices;
+        }
+
+        private void AssignOwnerToIndex(Tileable owner, Vector2Int targetIndex)
+        {
+            if (!_indexToObjDict.TryAdd(targetIndex, owner))
+                _indexToObjDict[targetIndex] = owner;
         }
         
         

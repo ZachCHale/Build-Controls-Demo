@@ -30,6 +30,8 @@ public class BuildControls : MonoBehaviour
     {
         StartCoroutine(RenderUI());
         _map = FindObjectOfType<TileMap>();
+
+        DemoTileableObject fo = new(_selectedObjData, CardinalDirection.East);
     }
 
     private void PreventSceneClick(MouseDownEvent evt) => evt.StopPropagation();

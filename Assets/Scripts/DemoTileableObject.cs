@@ -5,7 +5,7 @@ using ZHDev.CardinalDirections;
 using ZHDev.Extensions;
 using ZHDev.TileMaps;
 
-public class DemoTileableObject : TileableObject
+public class DemoTileableObject : StaticTileable
 {
     private GameObject _gameObjectInstance;
     private TileObjectData _resourceData;
@@ -15,14 +15,16 @@ public class DemoTileableObject : TileableObject
     private List<Vector2Int> _coveredTileIndices;
     private Vector2Int _pivotTileIndex;
     
-
-    
     public DemoTileableObject(TileObjectData resourceData, CardinalDirection forwardFacingDirection)
     {
         _resourceData = resourceData;
         _forwardFacingDirection = forwardFacingDirection;
         _coveredTiles = new();
     }
+    
+    
+    /*
+    
     protected override void OnAddedToTile(Tile targetTile)
     {
         _pivotTile = targetTile;
@@ -66,5 +68,14 @@ public class DemoTileableObject : TileableObject
         {
             t.AddToTileUnhandled(this);
         }
+    }*/
+    protected override void OnCreated()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void OnDeleted()
+    {
+        throw new System.NotImplementedException();
     }
 }
