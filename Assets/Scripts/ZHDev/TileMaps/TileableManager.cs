@@ -16,43 +16,43 @@ namespace ZHDev.TileMaps
         public Vector3 Forward => transform.forward;
         public Vector3 Right => transform.right;
         
-        private Dictionary<Vector2Int, Tileable> _indexToObjDict;
-        private Dictionary<Guid, List<Vector2Int>> _objGuidToIndices;
+        private readonly Dictionary<Vector2Int, Tileable> _indexToObjDict = new();
+        private readonly Dictionary<Guid, List<Vector2Int>> _objGuidToIndices = new();
         
-        public T CreateStaticTileable<T>(Vector2Int targetIndex) where T : StaticTileable, new()
+        internal void RegisterStaticTileable(StaticTileable sTileable, Vector2Int targetIndex)
         {
-            T newTileable = new T(){_manager = this};
-            
-            _objGuidToIndices.Add(newTileable.Guid, new List<Vector2Int>() { targetIndex });
-            AssignOwnerToIndex(newTileable, targetIndex);
-            newTileable.OnCreated();
-            return newTileable;
-        }
+            if(_indexToObjDict.ContainsKey(targetIndex)) ((StaticTileable)_indexToObjDict[targetIndex]).Delete();
+            _objGuidToIndices.Add(sTileable.Guid, new List<Vector2Int>() { targetIndex });
+            AssignOwnerToIndex(sTileable, targetIndex);
+            sTileable.OnRegisteredToAllIndices();
+        }   
         
-        public T CreateStaticTileable<T>(List<Vector2Int> targetIndices) where T : StaticTileable, new()
+        internal void RegisterStaticTileable(StaticTileable sTileable, List<Vector2Int> targetIndices)
         {
-            T newTileable = new T(){_manager = this};
-            _objGuidToIndices.Add(newTileable.Guid, new(targetIndices));
             foreach (var i in targetIndices)
-                AssignOwnerToIndex(newTileable, i);
-            newTileable.OnCreated();
-            return newTileable;
+            {
+                if(_indexToObjDict.ContainsKey(i)) ((StaticTileable)_indexToObjDict[i]).Delete();
+            }
+            _objGuidToIndices.Add(sTileable.Guid, new(targetIndices));
+            foreach (var i in targetIndices)
+                AssignOwnerToIndex(sTileable, i);
+            sTileable.OnRegisteredToAllIndices();
         }
 
-        internal void RemoveStaticTileable(StaticTileable obj)
+        internal void RemoveStaticTileable(StaticTileable sTileable)
         {
-            if(!_objGuidToIndices.ContainsKey(obj.Guid))
-                Debug.LogError($"Object with Guid \"{obj.Guid}\" does not exist in TileableManager");
-            obj.OnDeleted();
-            List<Vector2Int> indices = _objGuidToIndices[obj.Guid];
+            if(!_objGuidToIndices.ContainsKey(sTileable.Guid))
+                Debug.LogError($"Object with Guid \"{sTileable.Guid}\" does not exist in TileableManager");
+            sTileable.OnDeleted();
+            List<Vector2Int> indices = _objGuidToIndices[sTileable.Guid];
             foreach (var i in indices)
                 _indexToObjDict.Remove(i);
-            _objGuidToIndices.Remove(obj.Guid);
+            _objGuidToIndices.Remove(sTileable.Guid);
         }
 
-        public T CreateDynamicTileable<T>() where T : DynamicTileable, new()
+        internal void RegisterDynamicTileable(DynamicTileable dTileable)
         {
-            return new T() { _manager = this };
+            _objGuidToIndices.Add(dTileable.Guid, new());
         }
 
         internal void AddToDynamicTileable(DynamicTileable dTileable, Vector2Int newIndex)
@@ -110,7 +110,24 @@ namespace ZHDev.TileMaps
         public Vector3 IndexToLocal(Vector2Int index) => Vector3.zero + (Vector3.right * GapSize * index.x) + (Vector3.forward * GapSize * index.y);
         public Vector3 LocalToWorld(Vector3 localPos) => transform.TransformPoint(localPos);
 
-        
+        private bool TestDictionariesInSync()
+        {
+            foreach (var o in _objGuidToIndices.Keys)
+            {
+                foreach (var i in _objGuidToIndices[o])
+                {
+                    if (o != _indexToObjDict[i].Guid)
+                    {
+                        Debug.LogError(
+                            $"TileableManager Out Of Sync!" +
+                            $"\n{o}    ->    {i}    ->    {_indexToObjDict[i].Guid}");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
 
     }
 }

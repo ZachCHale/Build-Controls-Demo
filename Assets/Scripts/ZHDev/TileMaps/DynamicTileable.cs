@@ -9,6 +9,11 @@ namespace ZHDev.TileMaps
         protected internal abstract void OnIndexAdded(Vector2Int addedIndex);
         protected internal abstract void OnIndexRemoved(Vector2Int removedIndex);
 
+        protected DynamicTileable(TileableManager tileableManager) : base(tileableManager)
+        {
+            tileableManager.RegisterDynamicTileable(this);
+        }
+
         public void AddIndex(Vector2Int targetIndex)
         {
             _manager.AddToDynamicTileable(this, targetIndex);
