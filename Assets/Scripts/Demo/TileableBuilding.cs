@@ -12,14 +12,14 @@ namespace Demo
         private readonly GameObject _gameObjectInstance;
         private readonly TileObjectData _resourceData;
         
-        public TileableBuilding(TileableManager tileableManager, Vector2Int pivotIndex, TileObjectData tileableData, CardinalDirection facingDirection) 
-            : base(tileableManager, tileableData.GetTransformIndices(pivotIndex, facingDirection))
+        public TileableBuilding(TileablePlane tileablePlane, Vector2Int pivotIndex, TileObjectData tileableData, CardinalDirection facingDirection) 
+            : base(tileablePlane.GetTileableManager<TileableBuilding>(), tileableData.GetTransformIndices(pivotIndex, facingDirection))
         {
             _resourceData = tileableData;
             _gameObjectInstance = Object.Instantiate(original: tileableData.PrefabReference, 
-                parent: _manager.transform,
-                position: _manager.IndexToWorld(pivotIndex),
-                rotation: facingDirection.ToRotationFromNorth());
+                parent: tileablePlane.transform,
+                position: tileablePlane.IndexToWorld(pivotIndex),
+                rotation: tileablePlane.transform.rotation * facingDirection.ToRotationFromNorth());
         }
 
         protected override void OnRegisteredToAllIndices()
