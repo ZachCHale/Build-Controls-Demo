@@ -11,24 +11,28 @@ namespace Demo
     {
         private readonly GameObject _gameObjectInstance;
         private readonly TileObjectData _resourceData;
-        
-        public TileableBuilding(TileablePlane tileablePlane, Vector2Int pivotIndex, TileObjectData tileableData, CardinalDirection facingDirection) 
-            : base(tileablePlane.GetTileableManager<TileableBuilding>(), tileableData.GetTransformIndices(pivotIndex, facingDirection))
+        private readonly TileableBuildingManager _buildingManager;
+        public GameObject GameObjectInstance => _gameObjectInstance;
+        public TileObjectData ResourceData => _resourceData;
+        public TileableBuildingManager BuildingManager => _buildingManager;
+        public TileableBuilding(TileableBuildingManager buildingManager, TileObjectData tileableData) 
         {
             _resourceData = tileableData;
-            _gameObjectInstance = Object.Instantiate(original: tileableData.PrefabReference, 
-                parent: tileablePlane.transform,
-                position: tileablePlane.IndexToWorld(pivotIndex),
-                rotation: tileablePlane.transform.rotation * facingDirection.ToRotationFromNorth());
+            _buildingManager = buildingManager;
+            TileablePlane plane = buildingManager.TileablePlane;
+            _gameObjectInstance = Object.Instantiate(original: _resourceData.PrefabReference);
         }
 
-        protected override void OnRegisteredToAllIndices()
-        { }
-
-        protected override void OnDeleted()
+        protected override void OnRegisteredToIndices(List<Vector2Int> ownedIndices)
         {
-            Object.Destroy(_gameObjectInstance);
+
         }
 
+        protected override void OnCleared(List<Vector2Int> clearedIndices)
+        {
+            Debug.Log("onCleared");
+            if(_gameObjectInstance != null)
+                Object.Destroy(_gameObjectInstance);
+        }
     }
 }

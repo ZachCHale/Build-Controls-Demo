@@ -5,62 +5,40 @@ using UnityEngine;
 
 namespace ZHDev.TileMaps
 {
-    public class TileableManager
+    public abstract class TileableManager<T> where T : Tileable
     {
-        private readonly Dictionary<Vector2Int, Tileable> _indexToObjDict = new();
-        private readonly Dictionary<Guid, List<Vector2Int>> _objGuidToIndices = new();
+        protected readonly Dictionary<Vector2Int, T> _indexToObjDict = new();
+        protected readonly Dictionary<Guid, List<Vector2Int>> _objGuidToIndices = new();
+
+        public abstract void RegisterAsOwner(Vector2Int targetIndex, T owner);
+
+        public abstract void RegisterAsOwner(List<Vector2Int> targetIndices, T owner);
         
-        internal void RegisterStaticTileable(StaticTileable sTileable, Vector2Int targetIndex)
+        private Guid _guid;
+        public Guid Guid => _guid;
+
+        internal TileableManager()
         {
-            if(_indexToObjDict.ContainsKey(targetIndex)) ((StaticTileable)_indexToObjDict[targetIndex]).Delete();
-            _objGuidToIndices.Add(sTileable.Guid, new List<Vector2Int>() { targetIndex });
-            AssignOwnerToIndex(sTileable, targetIndex);
-            sTileable.OnRegisteredToAllIndices();
-        }   
-        
-        internal void RegisterStaticTileable(StaticTileable sTileable, List<Vector2Int> targetIndices)
-        {
-            foreach (var i in targetIndices)
-            {
-                if(_indexToObjDict.ContainsKey(i)) ((StaticTileable)_indexToObjDict[i]).Delete();
-            }
-            _objGuidToIndices.Add(sTileable.Guid, new(targetIndices));
-            foreach (var i in targetIndices)
-                AssignOwnerToIndex(sTileable, i);
-            sTileable.OnRegisteredToAllIndices();
+            _guid = Guid.NewGuid();
         }
 
-        internal void RemoveStaticTileable(StaticTileable sTileable)
+        public void FreeIndicesOf(T targetTileable)
         {
-            if(!_objGuidToIndices.ContainsKey(sTileable.Guid))
-                Debug.LogError($"Object with Guid \"{sTileable.Guid}\" does not exist in TileableManager");
-            sTileable.OnDeleted();
-            List<Vector2Int> indices = _objGuidToIndices[sTileable.Guid];
-            foreach (var i in indices)
+            if(!_objGuidToIndices.ContainsKey(targetTileable.Guid))return;
+            foreach (var i in _objGuidToIndices[targetTileable.Guid]) 
                 _indexToObjDict.Remove(i);
-            _objGuidToIndices.Remove(sTileable.Guid);
+            _objGuidToIndices.Remove(targetTileable.Guid);
         }
 
-        internal void RegisterDynamicTileable(DynamicTileable dTileable)
-        {
-            _objGuidToIndices.Add(dTileable.Guid, new());
-        }
+        public abstract bool FreeIndex(Vector2Int targetIndex);
 
-        internal void AddToDynamicTileable(DynamicTileable dTileable, Vector2Int newIndex)
+        public void FreeIndices(List<Vector2Int> targetIndices)
         {
-            AssignOwnerToIndex(dTileable, newIndex);
+            foreach (var i in targetIndices)
+                FreeIndex(i);
         }
         
-        internal bool RemoveFromDynamicTileable(DynamicTileable dTileable, Vector2Int targetIndex)
-        {
-            if (!TryGetOwnerOfIndex(targetIndex, out Tileable actualOwner) ||
-                actualOwner.Guid != dTileable.Guid) return false;
-            _objGuidToIndices.Remove(dTileable.Guid);
-            _indexToObjDict.Remove(targetIndex);
-            return true;
-        }
-
-        public bool TryGetOwnerOfIndex(Vector2Int targetIndex, out Tileable outObj)
+        public bool TryGetAt(Vector2Int targetIndex, out T outObj)
         {
             outObj = null;
             if (!_indexToObjDict.ContainsKey(targetIndex)) return false;
@@ -68,7 +46,7 @@ namespace ZHDev.TileMaps
             return true;
         }
         
-        public List<Vector2Int> GetIndicesOwnedBy(Tileable targetObject)
+        public List<Vector2Int> GetRegisteredIndices(T targetObject)
         {
             List<Vector2Int> retrievedIndices = new();
             Guid objGuid = targetObject.Guid;
@@ -77,13 +55,15 @@ namespace ZHDev.TileMaps
             return retrievedIndices;
         }
 
-        private void AssignOwnerToIndex(Tileable owner, Vector2Int targetIndex)
+        protected void AssignOwnerToIndex(T owner, Vector2Int targetIndex)
         {
             if (!_indexToObjDict.TryAdd(targetIndex, owner))
                 _indexToObjDict[targetIndex] = owner;
         }
+
+        public bool IsOwnerOf(Vector2Int targetIndex, T suspectedOwner) => (_indexToObjDict.TryGetValue(targetIndex, out T owner) && owner.Guid == suspectedOwner.Guid);
         
-        private bool TestDictionariesInSync()
+        protected bool TestDictionariesInSync()
         {
             foreach (var o in _objGuidToIndices.Keys)
             {
@@ -100,6 +80,18 @@ namespace ZHDev.TileMaps
             }
 
             return true;
+        }
+
+        protected void Log()
+        {
+            foreach (var o in _objGuidToIndices.Keys)
+            { 
+                Debug.Log(o);
+                foreach (var i in _objGuidToIndices[o])
+                {
+                    Debug.Log($"   {i}");
+                }
+            }
         }
 
     }

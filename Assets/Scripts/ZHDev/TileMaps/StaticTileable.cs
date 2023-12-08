@@ -6,24 +6,8 @@ namespace ZHDev.TileMaps
 {
     public abstract class StaticTileable : Tileable
     {
-        protected internal abstract void OnRegisteredToAllIndices();
-        protected internal abstract void OnDeleted();
+        protected internal abstract void OnRegisteredToIndices(List<Vector2Int> ownedIndices);
 
-        protected StaticTileable(TileableManager tileableManager, List<Vector2Int> staticIndices) : base(
-            tileableManager)
-        {
-            _manager.RegisterStaticTileable(this, staticIndices);
-        }
-        
-        protected StaticTileable(TileableManager tileableManager, Vector2Int staticIndex) : base(
-            tileableManager)
-        {
-            _manager.RegisterStaticTileable(this, staticIndex);
-        }
-
-        public void Delete()
-        {
-            _manager.RemoveStaticTileable(this);
-        }
+        protected internal abstract void OnCleared(List<Vector2Int> clearedIndices);
     }
 }

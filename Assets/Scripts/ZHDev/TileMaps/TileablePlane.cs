@@ -8,14 +8,6 @@ namespace ZHDev.TileMaps
 {
     public class TileablePlane : MonoBehaviour
     {
-        private readonly Dictionary<Type, TileableManager> _tileableManagers = new();
-        
-        public TileableManager GetTileableManager<T>() where T : Tileable 
-        {
-            if(!_tileableManagers.ContainsKey(typeof(T))) _tileableManagers.Add(typeof(T), new TileableManager());
-            return _tileableManagers[typeof(T)];
-        }
-        
         [SerializeField] private float _gapSize;
         public float GapSize => _gapSize;
         public Vector3 OriginPosition =>transform.position;

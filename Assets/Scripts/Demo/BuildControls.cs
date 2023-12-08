@@ -17,16 +17,12 @@ namespace Demo
     {
         [SerializeField] private StyleSheet _styleSheet;
         [SerializeField] private Texture2D _deleteButtonBackgroundImage;
-        [SerializeField] private TileablePlane _tileablePlane;
-        private TileableManager _buildingTileableManager; 
+        [SerializeField] private TileableBuildingManager _buildingManager;
+        private TileablePlane BuildingManagerPlane => _buildingManager.TileablePlane;
         private VisualElement _blockingUI;
 
         private UIDocument _document;
-
-        //private TileMap _map;
-        //private TileableManager _tileableManager;
         
-
         private TileObjectData _selectedObjData;
 
         private CardinalDirection _currentFacingDirection = CardinalDirection.North;
@@ -35,8 +31,7 @@ namespace Demo
         private void Awake()
         {
             StartCoroutine(RenderUI());
-            Assert.IsNotNull(_tileablePlane, "TileablePlane was not set on build controls.");
-            _buildingTileableManager = _tileablePlane.GetTileableManager<TileableBuilding>();
+            Assert.IsNotNull(_buildingManager, "BuildingManager was not set on build controls in inspector");
         }
 
         private void PreventSceneClick(MouseDownEvent evt) => evt.StopPropagation();
@@ -46,23 +41,12 @@ namespace Demo
             if (evt.button != 0) return;
             Vector2 screenPoint = evt.mousePosition;
             screenPoint.y = Screen.height - screenPoint.y;
-            Camera.main.GetScreenPointIntersectionWithPlane(screenPoint, _tileablePlane.Up, _tileablePlane.OriginPosition,
+            Camera.main.GetScreenPointIntersectionWithPlane(screenPoint, BuildingManagerPlane.Up, BuildingManagerPlane.OriginPosition,
                 out Vector3 targetPosition);
-            //bool inBounds = _map.WorldSpaceToMapTileIndex(targetPosition, out Vector2Int targetIndex);
-            Vector2Int targetIndex = _tileablePlane.WorldToProjectedIndex(targetPosition);
-            //if (!inBounds) return;
             if (isInDeleteMode)
-            {
-                if(_buildingTileableManager.TryGetOwnerOfIndex(targetIndex, out Tileable targetTileable))
-                    ((StaticTileable) targetTileable).Delete();
-            }
+                _buildingManager.TryRemoveBuildingAt(targetPosition);
             else if (_selectedObjData != null)
-            {
-                new TileableBuilding(tileablePlane: _tileablePlane,
-                    pivotIndex: targetIndex,
-                    tileableData: _selectedObjData,
-                    facingDirection: _currentFacingDirection);
-            }
+                _buildingManager.PlaceNewBuilding(_selectedObjData, targetPosition, _currentFacingDirection);
         }
 
         private void HandleSceneKeyPress(KeyDownEvent evt)
