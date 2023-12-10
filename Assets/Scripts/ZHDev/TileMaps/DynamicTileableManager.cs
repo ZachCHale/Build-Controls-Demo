@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
 namespace ZHDev.TileMaps
 {
     public class DynamicTileableManager<T> : TileableManager<T> where T : DynamicTileable
@@ -41,3 +42,4 @@ namespace ZHDev.TileMaps
         }
     }
 }
+*/

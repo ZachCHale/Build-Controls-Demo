@@ -123,6 +123,51 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &493093096
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 493093098}
+  - component: {fileID: 493093097}
+  m_Layer: 0
+  m_Name: _BuildingManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &493093097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493093096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e2d9973c564a75489fa8ea681836b70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tileablePlane: {fileID: 642718471}
+--- !u!4 &493093098
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493093096}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.696692, y: -10.8251, z: 9.93625}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &642718470
 GameObject:
   m_ObjectHideFlags: 0
@@ -134,7 +179,7 @@ GameObject:
   - component: {fileID: 642718472}
   - component: {fileID: 642718471}
   m_Layer: 0
-  m_Name: TileablePlane
+  m_Name: _TileablePlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -366,7 +411,7 @@ GameObject:
   - component: {fileID: 1971978899}
   - component: {fileID: 1971978901}
   m_Layer: 0
-  m_Name: Build Controls
+  m_Name: _BuildControls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -386,7 +431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _styleSheet: {fileID: 7433441132597879392, guid: 4687f52b7fc1614468fcd5d2191a3583, type: 3}
   _deleteButtonBackgroundImage: {fileID: 8228938214290033325, guid: 3e1967948bf2aee4f8337d311f8c0b84, type: 3}
-  _tileablePlane: {fileID: 642718471}
+  _buildingManager: {fileID: 493093097}
 --- !u!4 &1971978900
 Transform:
   m_ObjectHideFlags: 0
@@ -422,7 +467,8 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 642718472}
+  - {fileID: 493093098}
   - {fileID: 1971978900}
   - {fileID: 963194228}
   - {fileID: 705507995}
-  - {fileID: 642718472}

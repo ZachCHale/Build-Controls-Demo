@@ -11,25 +11,35 @@ namespace Demo
         [SerializeField] private TileablePlane _tileablePlane;
         public TileablePlane TileablePlane => _tileablePlane;
         
-        private StaticTileableManager<TileableBuilding> _tileableManager = new();
-        public TileableManager<TileableBuilding> TileableManager => _tileableManager;
+        private TileableManager<Building> _tileableManager = new();
+        
+        public TileableManager<Building> TileableManager => _tileableManager;
 
-        public TileableBuilding PlaceNewBuilding(TileObjectData buildingData, Vector3 positionToAdd, CardinalDirection facingDirection)
+        public bool TryPlaceNewBuilding(TileObjectData buildingData, Vector3 positionToAdd, CardinalDirection facingDirection, out Building resultBuilding)
         {
-            TileableBuilding newBuilding = new TileableBuilding(this, buildingData);
-            Transform buildingTransform = newBuilding.GameObjectInstance.transform;
             Vector2Int closestIndex = _tileablePlane.WorldToProjectedIndex(positionToAdd);
-            buildingTransform.parent = _tileablePlane.transform;
-            buildingTransform.position = _tileablePlane.IndexToWorld(closestIndex);
-            buildingTransform.rotation = facingDirection.ToRotationFromNorth();
-            _tileableManager.RegisterAsOwner(buildingData.GetTransformIndices(closestIndex,facingDirection), newBuilding);
-            return newBuilding;
+            List<Vector2Int> targetIndices = buildingData.GetTransformIndices(closestIndex, facingDirection);
+            resultBuilding = null;
+            
+            if (!_tileableManager.IsFree(targetIndices)) return false;
+
+            GameObject buildingGameObject = Instantiate(original: buildingData.PrefabReference, parent: _tileablePlane.transform);
+            buildingGameObject.transform.localPosition = _tileablePlane.IndexToLocal(closestIndex);
+            buildingGameObject.transform.rotation = facingDirection.ToRotationFromNorth();
+            
+            resultBuilding = new Building(this, buildingData, buildingGameObject);
+
+            _tileableManager.RegisterAsOwner(targetIndices, resultBuilding);
+            return true;
         }
 
         public bool TryRemoveBuildingAt(Vector3 positionToRemove)
         {
             Vector2Int closestIndex = _tileablePlane.WorldToProjectedIndex(positionToRemove);
-            return _tileableManager.FreeIndex(closestIndex);
+            if (!_tileableManager.TryGetAt(closestIndex, out Building foundBuilding)) return false;
+            _tileableManager.FreeIndicesOf(foundBuilding);
+            Destroy(foundBuilding.GameObjectInstance);
+            return true;
         }
         
 

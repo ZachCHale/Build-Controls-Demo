@@ -1,36 +1,57 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Codice.CM.Client.Gui;
 using UnityEngine;
 
 namespace ZHDev.TileMaps
 {
-    public abstract class TileableManager<T> where T : Tileable
+    public class TileableManager<T> where T : class
     {
         protected readonly Dictionary<Vector2Int, T> _indexToObjDict = new();
-        protected readonly Dictionary<Guid, List<Vector2Int>> _objGuidToIndices = new();
-
-        public abstract void RegisterAsOwner(Vector2Int targetIndex, T owner);
-
-        public abstract void RegisterAsOwner(List<Vector2Int> targetIndices, T owner);
+        protected readonly Dictionary<T, List<Vector2Int>> _objGuidToIndices = new();
         
-        private Guid _guid;
-        public Guid Guid => _guid;
-
-        internal TileableManager()
+        
+        public void RegisterAsOwner(Vector2Int targetIndex, T owner)
         {
-            _guid = Guid.NewGuid();
+            _objGuidToIndices.TryAdd(owner, new List<Vector2Int>());
+
+            _objGuidToIndices[owner].Add(targetIndex);
+            _indexToObjDict[targetIndex] = owner;
+
         }
+
+        public void RegisterAsOwner(List<Vector2Int> targetIndices, T owner)
+        {
+            _objGuidToIndices.TryAdd(owner, new List<Vector2Int>());
+
+            foreach (var i in targetIndices)
+            {
+                _objGuidToIndices[owner].Add(i);
+                _indexToObjDict[i] = owner;
+            }
+        }
+
+        public bool FreeIndex(Vector2Int targetIndex)
+        {
+            bool foundSomething = TryGetAt(targetIndex, out T targetTileable);
+            if (!foundSomething) return false;
+            _indexToObjDict.Remove(targetIndex);
+            _objGuidToIndices[targetTileable].Remove(targetIndex);
+            if (_objGuidToIndices[targetTileable].Count == 0)
+                _objGuidToIndices.Remove(targetTileable);
+            return true;
+        }
+        
 
         public void FreeIndicesOf(T targetTileable)
         {
-            if(!_objGuidToIndices.ContainsKey(targetTileable.Guid))return;
-            foreach (var i in _objGuidToIndices[targetTileable.Guid]) 
+            if(!_objGuidToIndices.ContainsKey(targetTileable))return;
+            foreach (var i in _objGuidToIndices[targetTileable]) 
                 _indexToObjDict.Remove(i);
-            _objGuidToIndices.Remove(targetTileable.Guid);
+            _objGuidToIndices.Remove(targetTileable);
+            
         }
-
-        public abstract bool FreeIndex(Vector2Int targetIndex);
 
         public void FreeIndices(List<Vector2Int> targetIndices)
         {
@@ -49,19 +70,34 @@ namespace ZHDev.TileMaps
         public List<Vector2Int> GetRegisteredIndices(T targetObject)
         {
             List<Vector2Int> retrievedIndices = new();
-            Guid objGuid = targetObject.Guid;
-            if (_objGuidToIndices.ContainsKey(objGuid))
-                retrievedIndices = new(_objGuidToIndices[objGuid]);
+            
+            if (_objGuidToIndices.TryGetValue(targetObject, out var index))
+                retrievedIndices = new(index);
             return retrievedIndices;
         }
 
-        protected void AssignOwnerToIndex(T owner, Vector2Int targetIndex)
+        public bool IsOwnerOf(Vector2Int targetIndex, T suspectedOwner) => (_indexToObjDict.TryGetValue(targetIndex, out T owner) && owner == suspectedOwner);
+
+        public List<T> GetOwners(List<Vector2Int> indices)
         {
-            if (!_indexToObjDict.TryAdd(targetIndex, owner))
-                _indexToObjDict[targetIndex] = owner;
+            HashSet<T> tileables = new();
+            foreach (var i in indices)
+                tileables.Add(_indexToObjDict[i]);
+            return new List<T>(tileables);
         }
 
-        public bool IsOwnerOf(Vector2Int targetIndex, T suspectedOwner) => (_indexToObjDict.TryGetValue(targetIndex, out T owner) && owner.Guid == suspectedOwner.Guid);
+        public bool IsFree(Vector2Int index)
+        {
+            return !_indexToObjDict.ContainsKey(index);
+        }
+
+        public bool IsFree(List<Vector2Int> indices)
+        {
+            foreach (var i in indices)
+                if (!IsFree(i))
+                    return false;
+            return true;
+        }
         
         protected bool TestDictionariesInSync()
         {
@@ -69,11 +105,11 @@ namespace ZHDev.TileMaps
             {
                 foreach (var i in _objGuidToIndices[o])
                 {
-                    if (o != _indexToObjDict[i].Guid)
+                    if (o != _indexToObjDict[i])
                     {
                         Debug.LogError(
                             $"TileableManager Out Of Sync!" +
-                            $"\n{o}    ->    {i}    ->    {_indexToObjDict[i].Guid}");
+                            $"\n{o}    ->    {i}    ->    {_indexToObjDict[i]}");
                         return false;
                     }
                 }

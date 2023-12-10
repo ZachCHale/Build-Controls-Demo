@@ -1,13 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using ZHDev.CardinalDirections;
 using ZHDev.TileMaps;
 
 namespace Demo
 {
-    /*public class TileableBuilding : Tileable, ITileableOnClear
+    public class Building
     {
         private readonly GameObject _gameObjectInstance;
         private readonly TileObjectData _resourceData;
@@ -15,18 +13,13 @@ namespace Demo
         public GameObject GameObjectInstance => _gameObjectInstance;
         public TileObjectData ResourceData => _resourceData;
         public TileableBuildingManager BuildingManager => _buildingManager;
-        public TileableBuilding(TileableBuildingManager buildingManager, TileObjectData tileableData) 
+        public Building(TileableBuildingManager buildingManager, TileObjectData tileableData, GameObject gameObjectInstance) 
         {
             _resourceData = tileableData;
             _buildingManager = buildingManager;
             TileablePlane plane = buildingManager.TileablePlane;
-            _gameObjectInstance = Object.Instantiate(original: _resourceData.PrefabReference);
+            _gameObjectInstance = gameObjectInstance;
         }
         
-        public void HandleOnClear()
-        {
-            if(_gameObjectInstance != null)
-                Object.Destroy(_gameObjectInstance);
-        }
-    }*/
+    }
 }

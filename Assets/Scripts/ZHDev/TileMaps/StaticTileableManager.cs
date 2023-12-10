@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+/*
 namespace ZHDev.TileMaps
 {
-    //When adding, any static conflicting tileables will be cleared. If the new tileable already owns incides, they will be cleared.
-    //Freeing a single index will trigger a clear on the static tileable owning said index
+    //Overwrite Strategy: ClearConflicting : TransferConflictingIndices
+    //    GetOwnerOfIndex, FreeIndicesOf, 
+    //Register Strategy: ClearPrevious : AddToCurrentIndices
+    //Unregister Strategy: ClearAll : RemoveSpecifiedIndices
+    
     public class StaticTileableManager<T> : TileableManager<T> where T : StaticTileable
     {
         public override void RegisterAsOwner(Vector2Int targetIndex, T owner)
@@ -25,7 +28,6 @@ namespace ZHDev.TileMaps
             foreach (var i in targetIndices)
                 AssignOwnerToIndex(owner, i);
             owner.OnRegisteredToIndices(targetIndices);
-            Log();
         }
 
         public override bool FreeIndex(Vector2Int targetIndex)
@@ -41,4 +43,4 @@ namespace ZHDev.TileMaps
             return false;
         }
     }
-}
+}*/

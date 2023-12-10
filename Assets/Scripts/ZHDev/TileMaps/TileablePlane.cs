@@ -50,7 +50,7 @@ namespace ZHDev.TileMaps
             0,3,2
         };
         
-        void OnDrawGizmos()
+        /*void OnDrawGizmos()
         {
             Mesh gizmoQuad = new Mesh
             {
@@ -82,6 +82,6 @@ namespace ZHDev.TileMaps
             
             Gizmos.DrawLineList(new Vector3[]{pointA, pointB, pointB, pointC, pointC, pointD, pointD, pointA});
 
-        }
+        }*/
     }
 }

@@ -46,7 +46,7 @@ namespace Demo
             if (isInDeleteMode)
                 _buildingManager.TryRemoveBuildingAt(targetPosition);
             else if (_selectedObjData != null)
-                _buildingManager.PlaceNewBuilding(_selectedObjData, targetPosition, _currentFacingDirection);
+                _buildingManager.TryPlaceNewBuilding(_selectedObjData, targetPosition, _currentFacingDirection, out Building resultBuilding);
         }
 
         private void HandleSceneKeyPress(KeyDownEvent evt)
