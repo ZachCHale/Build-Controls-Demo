@@ -41,7 +41,35 @@ namespace Demo
             Destroy(foundBuilding.GameObjectInstance);
             return true;
         }
-        
+
+        public List<Vector2Int> GetObstructedIndices(List<Vector2Int> targetIndices)
+        {
+            List<Vector2Int> obstructed = new();
+            foreach (var i in targetIndices)
+            {
+                if (_tileableManager.IsFree(i)) continue;
+                obstructed.Add(i);
+            }
+
+            return obstructed;
+        }
+        public List<Vector2Int> GetUnobstructedIndices(List<Vector2Int> targetIndices)
+        {
+            List<Vector2Int> unobstructed = new();
+            foreach (var i in targetIndices)
+            {
+                if (!_tileableManager.IsFree(i)) continue;
+                unobstructed.Add(i);
+            }
+
+            return unobstructed;
+        }
+
+        public bool TryGetBuildingAt(Vector2Int targetIndex, out Building foundBuilding) =>
+            _tileableManager.TryGetAt(targetIndex, out foundBuilding);
+
+        public List<Vector2Int> GetIndicesOfBuilding(Building targetBuilding) =>
+            _tileableManager.GetRegisteredIndices(targetBuilding);
 
     }
 }

@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 using ZHDev.CardinalDirections;
 using ZHDev.Extensions;
@@ -18,6 +20,7 @@ namespace Demo
         [SerializeField] private StyleSheet _styleSheet;
         [SerializeField] private Texture2D _deleteButtonBackgroundImage;
         [SerializeField] private TileableBuildingManager _buildingManager;
+        private Highlighter _highlighter;
         private TileablePlane BuildingManagerPlane => _buildingManager.TileablePlane;
         private VisualElement _blockingUI;
 
@@ -32,6 +35,40 @@ namespace Demo
         {
             StartCoroutine(RenderUI());
             Assert.IsNotNull(_buildingManager, "BuildingManager was not set on build controls in inspector");
+            _highlighter = new(BuildingManagerPlane);
+        }
+
+        private void FixedUpdate()
+        {
+            Vector2 screenPoint = Input.mousePosition;
+            Camera.main.GetScreenPointIntersectionWithPlane(screenPoint, BuildingManagerPlane.Up, BuildingManagerPlane.OriginPosition, out Vector3 targetPosition);
+            Vector2Int targetIndex = BuildingManagerPlane.WorldToProjectedIndex(targetPosition);
+            if (isInDeleteMode)
+            {
+                if (_buildingManager.TryGetBuildingAt(targetIndex, out Building foundBuilding))
+                {
+                    _highlighter.SetHighlights(_buildingManager.GetIndicesOfBuilding(foundBuilding), Color.red);
+                    _highlighter.ClearColor(Color.green);
+                }
+                else
+                {
+                    _highlighter.ClearAll();
+                }
+              
+            }
+            else if(_selectedObjData != null)
+            {
+                List<Vector2Int> previewIndices =
+                    _selectedObjData.GetTransformIndices(targetIndex, _currentFacingDirection);
+                List<Vector2Int> validIndices = _buildingManager.GetUnobstructedIndices(previewIndices);
+                List<Vector2Int> invalidIndices = _buildingManager.GetObstructedIndices(previewIndices);
+
+                _highlighter.SetHighlights(validIndices, Color.green);
+                _highlighter.SetHighlights(invalidIndices, Color.red);
+            }
+            
+
+
         }
 
         private void PreventSceneClick(MouseDownEvent evt) => evt.StopPropagation();

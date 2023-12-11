@@ -98,6 +98,20 @@ namespace ZHDev.TileMaps
                     return false;
             return true;
         }
+
+        public List<Vector2Int> FilterEmpty(List<Vector2Int> _targetIndices)
+        {
+            List<Vector2Int> empties = new();
+            foreach (var i in _targetIndices)
+                if(!_indexToObjDict.ContainsKey(i)) empties.Add(i);
+            return empties;
+        }
+
+        public void Clear()
+        {
+            _indexToObjDict.Clear();
+            _objGuidToIndices.Clear();
+        }
         
         protected bool TestDictionariesInSync()
         {
