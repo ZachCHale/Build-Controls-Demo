@@ -69,7 +69,7 @@ namespace Demo
                     newHighlight.transform.localPosition = _tileablePlane.IndexToLocal(i);
                     newHighlight.transform.localRotation = Quaternion.identity;
                     newHighlight.GetComponentInChildren<Renderer>().material = _colorsInUse[highlightColor].Material;
-                    newHighlight.layer = _layer;
+                    newHighlight.GetComponentInChildren<Renderer>().gameObject.layer = _layer;
                     _currentHighlights.Add(i, newHighlight);
                 }
                 else if(_highlightManager.TryGetAt(i, out HighlightColor currentHiglightColor))
