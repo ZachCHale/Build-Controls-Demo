@@ -9,8 +9,8 @@ namespace Demo
     {
         private const string PREFAB_PATH = "Demo/Highlighter/HighlightPrefab";
         private const string MAT_PATH = "Demo/Highlighter/HighlightMat";
-
-        
+        private const string LAYER_NAME = "TileHighlights";
+        private readonly LayerMask _layer;
         
         private GameObject _highlightPrefab;
         private Material _baseHighlightMaterial;
@@ -44,6 +44,7 @@ namespace Demo
             _highlightManager = new();
             _highlightPrefab = Resources.Load<GameObject>(PREFAB_PATH);
             _baseHighlightMaterial = Resources.Load<Material>(MAT_PATH);
+            _layer = LayerMask.NameToLayer(LAYER_NAME);
         }
 
         public void SetHighlights(List<Vector2Int> indices, Color highlightColor)
@@ -68,6 +69,7 @@ namespace Demo
                     newHighlight.transform.localPosition = _tileablePlane.IndexToLocal(i);
                     newHighlight.transform.localRotation = Quaternion.identity;
                     newHighlight.GetComponentInChildren<Renderer>().material = _colorsInUse[highlightColor].Material;
+                    newHighlight.layer = _layer;
                     _currentHighlights.Add(i, newHighlight);
                 }
                 else if(_highlightManager.TryGetAt(i, out HighlightColor currentHiglightColor))
