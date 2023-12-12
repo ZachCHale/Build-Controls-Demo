@@ -24,8 +24,10 @@ namespace ZHDev.TileMaps
             int xIndex = (int)(localPos.x / _gapSize);
             int yIndex = (int)(localPos.z / _gapSize);
             xIndex = localPos.x < 0 ? xIndex - 1 : xIndex;
-            yIndex = localPos.y < 0 ? yIndex - 1 : yIndex;
+            yIndex = localPos.z < 0 ? yIndex - 1 : yIndex;
             
+            Debug.Log($"{localPos}    {xIndex}:{yIndex}");
+
             return new Vector2Int(xIndex, yIndex);
         }
 
