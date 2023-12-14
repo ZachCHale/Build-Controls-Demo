@@ -731,6 +731,8 @@ MonoBehaviour:
   _invalidColor: {r: 0.9528302, g: 0.21124065, b: 0.21124065, a: 0.39215687}
   _unselectedButtonTexture: {fileID: 2800000, guid: 02daf172b6652c64ab3dffaed08e5e26, type: 3}
   _selectedButtonTexture: {fileID: 2800000, guid: cd8421e01b278a043a598e1b34b12cc7, type: 3}
+  _unselectedDeleteButtonTexture: {fileID: 2800000, guid: 87f0628430a12d848a80c8a7717f9b7a, type: 3}
+  _selectedDeleteButtonTexture: {fileID: 2800000, guid: ad879ed5387b44446887c7df02334be4, type: 3}
   _building1: {fileID: 11400000, guid: e16686427d24919408553f6e071dc624, type: 2}
   _building2: {fileID: 11400000, guid: bef48fb797e223a4183ab46a6090f2b5, type: 2}
   _building3: {fileID: 11400000, guid: cceb183ec7065e244abc77dfc011d089, type: 2}
