@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ZHDev.TileMaps;
+using ZHDev.TileableSystems;
 
 namespace Demo
 {
@@ -16,7 +16,7 @@ namespace Demo
         private Material _baseHighlightMaterial;
         
         private TileablePlane _tileablePlane;
-        private TileableManager<HighlightColor> _highlightManager;
+        private TileableRegistry<HighlightColor> _highlightRegistry;
 
         private Dictionary<Vector2Int, GameObject> _currentHighlights = new ();
         private Dictionary<Color, HighlightColor> _colorsInUse = new ();
@@ -41,7 +41,7 @@ namespace Demo
         public Highlighter(TileablePlane plane)
         {
             _tileablePlane = plane;
-            _highlightManager = new();
+            _highlightRegistry = new();
             _highlightPrefab = Resources.Load<GameObject>(PREFAB_PATH);
             _baseHighlightMaterial = Resources.Load<Material>(MAT_PATH);
             _layer = LayerMask.NameToLayer(LAYER_NAME);
@@ -57,13 +57,13 @@ namespace Demo
                 _colorsInUse.Add(highlightColor, newColor);
             }
             HighlightColor targetHighlightColor = _colorsInUse[highlightColor]; 
-            List<Vector2Int> previousIndices = _highlightManager.GetRegisteredIndices(targetHighlightColor);
+            List<Vector2Int> previousIndices = _highlightRegistry.GetRegisteredIndices(targetHighlightColor);
 
 
 
             foreach (var i in indices)
             {
-                if (_highlightManager.IsFree(i))
+                if (_highlightRegistry.IsFree(i))
                 {
                     GameObject newHighlight = Object.Instantiate(_highlightPrefab, _tileablePlane.transform);
                     newHighlight.transform.localPosition = _tileablePlane.IndexToLocal(i);
@@ -72,17 +72,17 @@ namespace Demo
                     newHighlight.GetComponentInChildren<Renderer>().gameObject.layer = _layer;
                     _currentHighlights.Add(i, newHighlight);
                 }
-                else if(_highlightManager.TryGetAt(i, out HighlightColor currentHiglightColor))
+                else if(_highlightRegistry.TryGetAt(i, out HighlightColor currentHiglightColor))
                 {
                     if (currentHiglightColor.Color == highlightColor) continue;
                     _currentHighlights[i].GetComponentInChildren<Renderer>().material = _colorsInUse[highlightColor].Material;
                 }
             }
-            _highlightManager.FreeIndicesOf(_colorsInUse[highlightColor]);
-            _highlightManager.RegisterAsOwner(indices, _colorsInUse[highlightColor]);
+            _highlightRegistry.FreeIndicesOf(_colorsInUse[highlightColor]);
+            _highlightRegistry.RegisterAsOwner(indices, _colorsInUse[highlightColor]);
             foreach (var i in previousIndices)
             {
-                if (!_highlightManager.IsFree(i)) continue;
+                if (!_highlightRegistry.IsFree(i)) continue;
                 Object.Destroy(_currentHighlights[i]);
                 _currentHighlights.Remove(i);
             }
@@ -92,8 +92,8 @@ namespace Demo
         {
             if (!_colorsInUse.ContainsKey(targetColor)) return;
             HighlightColor highlightColor = _colorsInUse[targetColor];
-            List<Vector2Int> indices = _highlightManager.GetRegisteredIndices(highlightColor);
-            _highlightManager.FreeIndicesOf(_colorsInUse[targetColor]);
+            List<Vector2Int> indices = _highlightRegistry.GetRegisteredIndices(highlightColor);
+            _highlightRegistry.FreeIndicesOf(_colorsInUse[targetColor]);
             foreach (var i in indices)
             {
                 Object.Destroy(_currentHighlights[i]);
@@ -108,7 +108,7 @@ namespace Demo
                 Object.Destroy(obj);
             }
             _currentHighlights.Clear();
-            _highlightManager.Clear();
+            _highlightRegistry.Clear();
         }
         
     }

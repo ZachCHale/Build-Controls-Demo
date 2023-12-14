@@ -9,7 +9,7 @@ using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 using ZHDev.CardinalDirections;
 using ZHDev.Extensions;
-using ZHDev.TileMaps;
+using ZHDev.TileableSystems;
 
 
 namespace Demo
@@ -26,11 +26,15 @@ namespace Demo
 
         private UIDocument _document;
         
-        private TileObjectData _selectedObjData;
+        private BuildingData _selectedObjData;
 
         private CardinalDirection _currentFacingDirection = CardinalDirection.North;
         private bool isInDeleteMode = false;
 
+        [SerializeField] private Color _validColor;
+        [SerializeField] private Color _invalidColor;
+
+        
         private void Awake()
         {
             StartCoroutine(RenderUI());
@@ -47,8 +51,8 @@ namespace Demo
             {
                 if (_buildingManager.TryGetBuildingAt(targetIndex, out Building foundBuilding))
                 {
-                    _highlighter.SetHighlights(_buildingManager.GetIndicesOfBuilding(foundBuilding), Color.red);
-                    _highlighter.ClearColor(Color.green);
+                    _highlighter.SetHighlights(_buildingManager.GetIndicesOfBuilding(foundBuilding), _invalidColor);
+                    _highlighter.ClearColor(_validColor);
                 }
                 else
                 {
@@ -63,8 +67,8 @@ namespace Demo
                 List<Vector2Int> validIndices = _buildingManager.GetUnobstructedIndices(previewIndices);
                 List<Vector2Int> invalidIndices = _buildingManager.GetObstructedIndices(previewIndices);
 
-                _highlighter.SetHighlights(validIndices, Color.green);
-                _highlighter.SetHighlights(invalidIndices, Color.red);
+                _highlighter.SetHighlights(validIndices, _validColor);
+                _highlighter.SetHighlights(invalidIndices, _invalidColor);
             }
             
 
@@ -94,7 +98,7 @@ namespace Demo
                 _currentFacingDirection = _currentFacingDirection.Rotate(counterClockwise: true);
         }
 
-        private void HandleObjDataButtonClick(MouseDownEvent evt, TileObjectData objData)
+        private void HandleObjDataButtonClick(MouseDownEvent evt, BuildingData objData)
         {
             isInDeleteMode = false;
             _selectedObjData = objData;
@@ -155,8 +159,8 @@ namespace Demo
             VisualElement scrollViewContent =
                 CreateElement(parent: scrollView, classNames: new[] { "scroll-view-content" });
 
-            TileObjectData[] allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(TileObjectData))
-                .Cast<TileObjectData>()
+            BuildingData[] allPlaceableObjectData = Resources.LoadAll("PlaceableObjData", typeof(BuildingData))
+                .Cast<BuildingData>()
                 .ToArray();
 
             VisualElement deleteButton =
@@ -164,12 +168,12 @@ namespace Demo
             deleteButton.style.backgroundImage = _deleteButtonBackgroundImage;
             deleteButton.RegisterCallback<MouseDownEvent>(HandleDeleteButtonClick);
 
-            foreach (TileObjectData objData in allPlaceableObjectData)
+            foreach (BuildingData objData in allPlaceableObjectData)
             {
                 VisualElement button = CreateElement(parent: scrollViewContent,
                     classNames: new[] { "building-data-button" });
                 button.style.backgroundImage = objData.MenuPreviewImage;
-                button.RegisterCallback<MouseDownEvent, TileObjectData>(HandleObjDataButtonClick, objData);
+                button.RegisterCallback<MouseDownEvent, BuildingData>(HandleObjDataButtonClick, objData);
             }
 
         }

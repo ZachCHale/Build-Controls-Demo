@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8988313967955275231}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Long House
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 3349743289584194485}
   - component: {fileID: 2021778127618547434}
   - component: {fileID: 901293159392560324}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Roof_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 6688845776013986643}
   - component: {fileID: 8856754705569208141}
   - component: {fileID: 632094205108834572}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Roof_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -256,7 +256,7 @@ GameObject:
   - component: {fileID: 6147922805187123441}
   - component: {fileID: 1017395057016615373}
   - component: {fileID: 2505674556986917122}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HouseBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -358,7 +358,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5262224906924504833}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
