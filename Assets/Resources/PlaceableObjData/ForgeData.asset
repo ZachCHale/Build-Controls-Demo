@@ -10,11 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea6cd0b1159195342b263a92d85cd08e, type: 3}
-  m_Name: Box
+  m_Name: ForgeData
   m_EditorClassIdentifier: 
-  prefabReference: {fileID: 2977147911789491551, guid: 340156906723a9949b98e11effc10f3d, type: 3}
-  title: Box
-  description: A box with sharp corners!
-  menuPreviewImage: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
+  prefabReference: {fileID: 488221312506038914, guid: c2f70daef5af3aa4b9783d504530e0d1, type: 3}
+  title: 
+  description: 
+  menuPreviewImage: {fileID: 2800000, guid: 820a2c6fda5bea74a9ed69afbc806738, type: 3}
   occupiedSpaces:
   - {x: 0, y: 0}
+  - {x: 1, y: 0}
+  - {x: 0, y: 1}

@@ -10,14 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea6cd0b1159195342b263a92d85cd08e, type: 3}
-  m_Name: Big House
+  m_Name: WallData
   m_EditorClassIdentifier: 
-  prefabReference: {fileID: 600169065284684858, guid: 8dd818d69d6da1c46b036e0591475259, type: 3}
-  title: Big House
-  description: What a big house this is!
-  menuPreviewImage: {fileID: -4528830608231651361, guid: 3e1967948bf2aee4f8337d311f8c0b84, type: 3}
+  prefabReference: {fileID: 3275520935693234204, guid: 9d5ac1202271d8841a4948891c63cec0, type: 3}
+  title: 
+  description: 
+  menuPreviewImage: {fileID: 2800000, guid: 19fe6eaa8dc2d6b47b86132d6d20d6cf, type: 3}
   occupiedSpaces:
   - {x: 0, y: 0}
-  - {x: 1, y: 0}
-  - {x: 0, y: 1}
-  - {x: 1, y: 1}
