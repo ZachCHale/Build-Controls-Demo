@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: ForgeData
   m_EditorClassIdentifier: 
   prefabReference: {fileID: 488221312506038914, guid: c2f70daef5af3aa4b9783d504530e0d1, type: 3}
-  title: 
-  description: 
   menuPreviewImage: {fileID: 2800000, guid: 0c1d67dd2fb89b84b927ba40dede323d, type: 3}
   occupiedSpaces:
   - {x: 0, y: 0}
   - {x: 1, y: 0}
   - {x: 0, y: 1}
+  connectionSpaces: []
+  connectionData: {fileID: 0}

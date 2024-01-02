@@ -17,7 +17,6 @@ namespace Demo
         {
             _resourceData = tileableData;
             _buildingManager = buildingManager;
-            TileablePlane plane = buildingManager.TileablePlane;
             _gameObjectInstance = gameObjectInstance;
         }
         

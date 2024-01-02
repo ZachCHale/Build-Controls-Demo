@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea6cd0b1159195342b263a92d85cd08e, type: 3}
   m_Name: WallData
   m_EditorClassIdentifier: 
-  prefabReference: {fileID: 3275520935693234204, guid: 9d5ac1202271d8841a4948891c63cec0, type: 3}
-  title: 
-  description: 
+  prefabReference: {fileID: 6567199528981413620, guid: 9d5ac1202271d8841a4948891c63cec0, type: 3}
   menuPreviewImage: {fileID: 2800000, guid: 19fe6eaa8dc2d6b47b86132d6d20d6cf, type: 3}
   occupiedSpaces:
   - {x: 0, y: 0}
+  connectionSpaces:
+  - {x: 0, y: 0}
+  connectionData: {fileID: 11400000, guid: 70436c7460989ed42a5e8eb6844c9635, type: 2}
