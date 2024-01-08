@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/BuildingButtonStyles.uss?fileID=7433441132597879392&amp;guid=4399f2424dbe4224ba5572cd5f6963ac&amp;type=3#BuildingButtonStyles" />
+    <ui:VisualElement name="building-button" class="background" style="flex-grow: 0; background-image: resource(&apos;Demo/BuildMenu/BuildingButtonBackground&apos;); -unity-background-scale-mode: scale-to-fit; width: 100px; height: 100px; margin-top: 12px; margin-right: 12px; margin-bottom: 12px; margin-left: 12px;">
+        <ui:VisualElement name="border" picking-mode="Ignore" class="border-unselected" style="flex-grow: 1; position: absolute; background-image: resource(&apos;Demo/BuildMenu/BuildingButtonBorder&apos;); left: 0; top: 0; right: 0; bottom: 0;" />
+        <ui:VisualElement picking-mode="Ignore" name="icon" class="icon-unselected" style="flex-grow: 1; background-image: resource(&apos;Demo/BuildMenu/TowerIcon&apos;); -unity-background-scale-mode: scale-to-fit; -unity-slice-top: 0; margin-top: 15px; margin-bottom: 15px; padding-bottom: 0; padding-top: 0; padding-right: 0; padding-left: 0; margin-left: 15px; margin-right: 15px;" />
+    </ui:VisualElement>
+</ui:UXML>

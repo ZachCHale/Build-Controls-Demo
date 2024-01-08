@@ -1,0 +1,31 @@
+.background {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.39);
+}
+
+.background:hover {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.78);
+}
+
+.icon-unselected {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.39);
+}
+
+.icon-selected {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.icon-selected-red {
+    -unity-background-image-tint-color: rgb(255, 0, 0);
+}
+
+.border-unselected {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.39);
+}
+
+.border-selected {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.border-selected-red {
+    -unity-background-image-tint-color: rgb(255, 0, 0);
+}

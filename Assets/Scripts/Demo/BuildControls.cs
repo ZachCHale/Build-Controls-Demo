@@ -147,6 +147,7 @@ namespace Demo
             root.Focus();
             root.RegisterCallback<MouseDownEvent>(HandleSceneClick);
             root.RegisterCallback<KeyDownEvent>(HandleSceneKeyPress);
+            
 
             VisualElement container = CreateElement(classNames: new[] { "container" });
             container.RegisterCallback<MouseDownEvent>(PreventSceneClick);

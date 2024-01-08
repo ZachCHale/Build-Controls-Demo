@@ -27,13 +27,13 @@ namespace Demo
         [Header("When Zoomed In:")]
         [SerializeField] private float _minZoomDistance = 5f;
         [SerializeField] private float _minZoomArmAngle = 20f;
-        [SerializeField] private float _minZoomCameraAngle = 40f;
-        [SerializeField] private float _minZoomPanSpeed = 0.03f;
+        [SerializeField] private float _minZoomCameraAngle = 15f;
+        [SerializeField] private float _minZoomPanSpeed = 3f;
         [Header("When Zoomed Out:")]
-        [SerializeField] private float _maxZoomDistance = 20f;
-        [SerializeField] private float _maxZoomArmAngle = 60f;
-        [SerializeField] private float _maxZoomCameraAngle = 40f;
-        [SerializeField] private float _maxZoomPanSpeed = 0.1f;
+        [SerializeField] private float _maxZoomDistance = 50f;
+        [SerializeField] private float _maxZoomArmAngle = 70f;
+        [SerializeField] private float _maxZoomCameraAngle = 0f;
+        [SerializeField] private float _maxZoomPanSpeed = 50f;
 
 
         

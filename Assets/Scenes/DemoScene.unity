@@ -723,6 +723,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bde1c69181ddac459abe6256b79a0ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _focusPointSpawnPosition: {x: 0, y: 0, z: 0}
+  _rotationSensitivity: 0.5
+  _scrollSensitivity: 0.5
   _minZoomDistance: 5
   _minZoomArmAngle: 20
   _minZoomCameraAngle: 15
@@ -731,7 +734,6 @@ MonoBehaviour:
   _maxZoomArmAngle: 70
   _maxZoomCameraAngle: 0
   _maxZoomPanSpeed: 50
-  _focusPointSpawnPosition: {x: 0, y: 0, z: 0}
 --- !u!4 &1395943619
 Transform:
   m_ObjectHideFlags: 0
@@ -759,7 +761,7 @@ GameObject:
   - component: {fileID: 1931340046}
   - component: {fileID: 1931340045}
   m_Layer: 0
-  m_Name: _NewMenu
+  m_Name: _BuildMenuAndContols
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -777,19 +779,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e82349c5c1bebe4bab8b6517b184f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _styleSheet: {fileID: 0}
-  _deleteButtonBackgroundImage: {fileID: 0}
   _buildingManager: {fileID: 493093097}
-  _validColor: {r: 0.21124065, g: 0.9528302, b: 0.21193144, a: 0.39215687}
-  _invalidColor: {r: 0.9528302, g: 0.21124065, b: 0.21124065, a: 0.39215687}
+  _buildingButtonAsset: {fileID: 9197481963319205126, guid: 5939914e2ccbf7149889f6f4386dadbb, type: 3}
+  _deleteButtonAsset: {fileID: 9197481963319205126, guid: 60901893bbe559b42b210d447fbdc1d2, type: 3}
   _unselectedButtonTexture: {fileID: 2800000, guid: 02daf172b6652c64ab3dffaed08e5e26, type: 3}
   _selectedButtonTexture: {fileID: 2800000, guid: cd8421e01b278a043a598e1b34b12cc7, type: 3}
   _unselectedDeleteButtonTexture: {fileID: 2800000, guid: 87f0628430a12d848a80c8a7717f9b7a, type: 3}
   _selectedDeleteButtonTexture: {fileID: 2800000, guid: ad879ed5387b44446887c7df02334be4, type: 3}
-  _building1: {fileID: 11400000, guid: 84c15ecafc411de45b236b3c5eead747, type: 2}
-  _building2: {fileID: 11400000, guid: b099445e8dac6b44b9f9b73ca835758c, type: 2}
-  _building3: {fileID: 11400000, guid: 389b4dafb393bcb4cb43957f7f16915d, type: 2}
-  _building4: {fileID: 11400000, guid: 603ace84134b23545a973233d8be9434, type: 2}
+  _validPlacmentColor: {r: 0.15143289, g: 0.7830189, b: 0.15143289, a: 1}
+  _invalidPlacementColor: {r: 0.8584906, g: 0.21462265, b: 0.21462265, a: 1}
+  _buildingDatas:
+  - {fileID: 11400000, guid: 84c15ecafc411de45b236b3c5eead747, type: 2}
+  - {fileID: 11400000, guid: b099445e8dac6b44b9f9b73ca835758c, type: 2}
+  - {fileID: 11400000, guid: 389b4dafb393bcb4cb43957f7f16915d, type: 2}
+  - {fileID: 11400000, guid: 603ace84134b23545a973233d8be9434, type: 2}
 --- !u!114 &1931340046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -825,10 +828,10 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 642718472}
-  - {fileID: 493093098}
   - {fileID: 1931340047}
   - {fileID: 1395943619}
+  - {fileID: 642718472}
+  - {fileID: 493093098}
   - {fileID: 963194228}
   - {fileID: 705507995}
   - {fileID: 372056464}
